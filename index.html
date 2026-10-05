@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Halbtag 4: Vibe Coding und kreatives Arbeiten mit KI | PICTS Aufbaumodul</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#111111; --white:#ffffff; --lime:#def428;
+  --grey:#F4F4F2; --line:#E2E2DE; --muted:#55554F; --code:#F6F6F3;
+  --head:'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --body:'Atkinson Hyperlegible', 'Segoe UI', Arial, sans-serif;
+  --mono:'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top, 0px);
+  padding-bottom:env(safe-area-inset-bottom, 0px);
+}
+html{scroll-padding-top:calc(env(safe-area-inset-top, 0px) + 80px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--white);color:var(--black);font-family:var(--body);font-size:20px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--black);text-decoration-thickness:2px;text-decoration-color:var(--lime);text-underline-offset:4px}
+a:hover{background:var(--lime)}
+a.btn:hover{background:var(--black);color:var(--lime)}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:3px solid var(--black);box-shadow:0 0 0 6px var(--lime);outline-offset:3px;border-radius:4px}
+mark{background:var(--lime);color:var(--black);padding:0 .15em;border-radius:3px}
+code{font-family:var(--mono);font-size:.85em;background:var(--grey);padding:.08em .35em;border-radius:5px}
+
+/* Layout */
+.shell{display:grid;grid-template-columns:330px 1fr;min-height:100vh}
+.shell.collapsed{grid-template-columns:0 1fr}
+.shell.collapsed aside.nav{visibility:hidden}
+aside.nav{position:sticky;top:env(safe-area-inset-top, 0px);height:calc(100vh - env(safe-area-inset-top, 0px));overflow-y:auto;background:var(--black);color:var(--white);padding:28px 18px 28px;display:flex;flex-direction:column}
+.brand{font-family:var(--head);font-weight:600;font-size:15px;color:#BDBDB5;margin:0 0 4px 10px}
+.brand b{display:block;font-weight:800;font-size:22px;line-height:1.15;color:var(--white);margin-top:6px}
+.brand b span{background:var(--lime);color:var(--black);padding:0 .15em;border-radius:3px}
+.stages{list-style:none;padding:0;margin:24px 0 0;flex:1}
+.stage{margin:0 0 6px}
+.stagebtn{display:flex;gap:12px;align-items:baseline;width:100%;text-align:left;background:none;border:0;border-radius:10px;padding:9px 10px;color:var(--white);font-family:var(--head);font-weight:800;font-size:18px;line-height:1.2}
+.stagebtn:hover{background:rgba(255,255,255,.08)}
+.stagebtn .n{flex:none;width:22px;color:var(--lime)}
+.subs{list-style:none;padding:0 0 4px 44px;margin:0}
+.subbtn{display:block;width:100%;text-align:left;background:none;border:0;border-radius:8px;padding:5px 10px;color:#C9C9C2;font-family:var(--head);font-weight:600;font-size:15.5px;line-height:1.3}
+.subbtn:hover{background:rgba(255,255,255,.08);color:#fff}
+.subbtn[aria-current="true"],.stagebtn[aria-current="true"]{background:var(--lime);color:var(--black)}
+.stagebtn[aria-current="true"] .n{color:var(--black)}
+.stagebtn .t small{display:block;font-weight:600;font-size:13.5px;color:#BDBDB5;margin-top:2px}
+.stagebtn[aria-current="true"] .t small{color:#333}
+.navfoot{margin:20px 10px 0;display:flex;gap:8px;flex-wrap:wrap}
+.navfoot button{background:none;border:1px solid rgba(255,255,255,.35);border-radius:8px;padding:6px 10px;color:#E5E5DF;font-size:14px;font-family:var(--head);font-weight:600}
+
+.topbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--white);padding:14px 40px;padding-top:calc(14px + env(safe-area-inset-top, 0px));border-bottom:1px solid var(--line)}
+.crumb{font-family:var(--head);font-weight:600;font-size:16px;color:var(--muted);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.ctrl{display:flex;gap:8px;flex:none}
+.iconbtn{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:7px 13px;font-family:var(--head);font-weight:600;font-size:15px}
+.iconbtn:disabled{opacity:.35;cursor:default}
+
+main{padding:44px 56px 120px}
+.page{max-width:1020px}
+.kicker{font-family:var(--head);font-weight:800;font-size:18px;margin:0 0 10px;display:inline-block;background:var(--black);color:var(--white);padding:3px 12px;border-radius:99px}
+h1{font-family:var(--head);font-weight:800;font-size:clamp(38px,5.2vw,64px);line-height:1.03;letter-spacing:-.02em;margin:0 0 20px}
+h2{font-family:var(--head);font-weight:800;font-size:32px;line-height:1.15;margin:52px 0 14px;letter-spacing:-.01em}
+h3{font-family:var(--head);font-weight:800;font-size:23px;margin:26px 0 8px}
+p{margin:0 0 14px;max-width:72ch}
+ul,ol{max-width:72ch;padding-left:26px;margin:0 0 14px}
+li{margin:4px 0}
+
+/* Bausteine */
+.core{font-family:var(--head);font-weight:600;font-size:clamp(24px,2.6vw,32px);line-height:1.3;border-left:10px solid var(--lime);padding:6px 0 6px 26px;margin:0 0 32px;max-width:none}
+.box{background:var(--lime);border-radius:20px;padding:22px 26px;margin:24px 0;color:var(--black)}
+.box h3{margin-top:0}
+.box p:last-child,.box ul:last-child,.box ol:last-child{margin-bottom:0}
+.box mark{background:var(--white)}
+.note{background:var(--grey);border-radius:16px;padding:18px 24px;margin:22px 0}
+.note p:last-child,.note ul:last-child{margin-bottom:0}
+.note strong:first-child{font-family:var(--head)}
+.warn{border:2px solid var(--black);border-radius:16px;padding:16px 22px;margin:22px 0}
+.warn p:last-child,.warn ul:last-child{margin-bottom:0}
+.warn .wt{font-family:var(--head);font-weight:800;margin-bottom:6px}
+
+details{border:1px solid var(--line);border-radius:14px;margin:14px 0;padding:0 22px;background:var(--white)}
+details summary{cursor:pointer;font-family:var(--head);font-weight:600;font-size:19px;padding:14px 0;list-style:none;display:flex;gap:12px;align-items:center}
+details summary::-webkit-details-marker{display:none}
+details summary::before{content:"+";display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--lime);color:var(--black);font-weight:800;flex:none}
+details[open] summary::before{content:"−"}
+details[open]{padding-bottom:12px}
+
+.tablewrap{overflow-x:auto;margin:14px 0 18px}
+table{border-collapse:collapse;width:100%;font-size:18px}
+th,td{text-align:left;vertical-align:top;padding:12px 14px;border-bottom:1px solid var(--line)}
+th{font-family:var(--head);font-weight:800;font-size:17px;border-bottom:2px solid var(--black)}
+.badge{display:inline-block;font-family:var(--head);font-weight:800;font-size:13px;border-radius:99px;padding:2px 10px;background:var(--lime);margin-left:6px;vertical-align:2px}
+
+.prompt{position:relative;margin:14px 0 20px}
+.prompt .ptitle{font-family:var(--head);font-weight:600;font-size:16px;color:var(--muted);margin:0 0 6px}
+.prompt pre{font-family:var(--mono);font-size:16px;line-height:1.55;white-space:pre-wrap;background:var(--code);border:1px solid var(--line);border-radius:12px;padding:18px 20px;padding-right:118px;margin:0;overflow-x:auto}
+.copy{position:absolute;top:34px;right:10px;background:var(--black);color:var(--lime);border:0;border-radius:8px;padding:6px 12px;font-family:var(--head);font-weight:600;font-size:14px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px;margin:16px 0 22px}
+.card{border:1px solid var(--line);border-radius:18px;padding:20px 22px;background:var(--white)}
+.card h3{margin:0 0 6px;font-size:21px}
+.card p{margin:0 0 8px;font-size:18px;color:var(--muted)}
+.card p:last-child{margin-bottom:0}
+.tag{display:inline-block;font-family:var(--head);font-weight:600;font-size:13.5px;border:1px solid var(--black);border-radius:99px;padding:1px 9px;margin:6px 6px 0 0;color:var(--black)}
+.src{font-size:16px}
+
+.steps{list-style:none;padding:0;counter-reset:s;max-width:none}
+.steps li{counter-increment:s;display:grid;grid-template-columns:52px 1fr;gap:14px;align-items:start;border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin:10px 0}
+.steps li::before{content:counter(s);font-family:var(--head);font-weight:800;font-size:30px;line-height:1.1;background:var(--lime);border-radius:10px;display:grid;place-items:center;height:44px}
+.steps li strong{font-family:var(--head)}
+
+.checks label{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:8px 0;cursor:pointer}
+.checks input{width:22px;height:22px;margin-top:4px;accent-color:var(--black);flex:none}
+
+/* Chancen / Grenzen */
+.pairs{display:grid;gap:14px;margin:18px 0}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.pc,.pg{border-radius:18px;padding:18px 22px;display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:start}
+.pc{background:var(--lime)}
+.pg{background:var(--black);color:var(--white)}
+.pc .ic,.pg .ic{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-family:var(--head);font-weight:800;font-size:26px}
+.pc .ic{background:var(--black);color:var(--lime)}
+.pg .ic{background:var(--lime);color:var(--black)}
+.pc h3,.pg h3{margin:0 0 4px;font-size:20px}
+.pc p,.pg p{margin:0;font-size:17.5px}
+.pg p{color:#E4E4DE}
+.pc .ex,.pg .ex{font-style:italic;margin-top:6px}
+
+/* Tweet */
+.tweet{border:1px solid var(--line);border-radius:20px;padding:22px 26px;margin:18px 0;max-width:640px}
+.tweet .who{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+.tweet .av{width:44px;height:44px;border-radius:50%;background:var(--black);color:var(--lime);display:grid;place-items:center;font-family:var(--head);font-weight:800}
+.tweet .nm{font-family:var(--head);font-weight:800;line-height:1.2}
+.tweet .nm small{display:block;font-family:var(--body);font-weight:400;color:var(--muted);font-size:15px}
+.tweet blockquote{margin:0 0 12px;font-size:23px;line-height:1.4}
+.tweet .meta{font-size:15px;color:var(--muted)}
+
+/* Design Thinking */
+.loopwrap{display:grid;grid-template-columns:minmax(260px,380px) 1fr;gap:28px;align-items:center;margin:16px 0}
+.loopwrap svg{width:100%;height:auto}
+
+/* Timer */
+.timer{background:var(--black);color:var(--white);border-radius:24px;padding:26px 28px;margin:24px 0;text-align:center}
+.timer .disp{font-family:var(--head);font-weight:800;font-size:clamp(84px,14vw,170px);line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.timer.low .disp{color:var(--lime)}
+.timer.done{background:var(--lime);color:var(--black)}
+.timer .bar{height:10px;background:#333;border-radius:99px;overflow:hidden;margin:18px auto 20px;max-width:700px}
+.timer .bar i{display:block;height:100%;background:var(--lime);width:100%;transition:width .25s linear}
+.timer.done .bar{background:rgba(0,0,0,.15)}
+.timer.done .bar i{background:var(--black)}
+.timer .tbtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.timer .tbtns button{border:0;border-radius:12px;padding:12px 20px;font-family:var(--head);font-weight:800;font-size:18px;background:var(--white);color:var(--black)}
+.timer .tbtns button.go{background:var(--lime)}
+.timer.done .tbtns button{background:var(--black);color:var(--white)}
+.timer .set{margin-top:16px;font-size:16px;display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap}
+.timer .set input{width:70px;font:inherit;font-size:17px;border-radius:8px;border:0;padding:6px 8px;text-align:center}
+
+.agenda{list-style:none;padding:0;max-width:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.agenda li{border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin:0}
+.agenda li b{display:block;font-family:var(--head);font-weight:800;font-size:22px}
+.agenda li b span{color:var(--black);background:var(--lime);border-radius:6px;padding:0 6px;margin-right:6px}
+.agenda li em{font-style:normal;color:var(--muted);font-size:17px}
+
+.hero{background:var(--black);color:var(--white);border-radius:28px;padding:48px 44px;margin:0 0 36px}
+.hero .kicker{background:var(--lime);color:var(--black)}
+.hero h1{color:var(--white);margin-bottom:14px}
+.hero h1 span{color:var(--lime)}
+.hero p{color:#E4E4DE;font-size:22px;max-width:60ch;margin:0 0 12px}
+.hero .halbtag{font-family:var(--head);font-weight:800;font-size:22px;color:var(--lime);margin:4px 0 6px}
+.hero .lead{font-family:var(--head);font-weight:600;font-size:26px;line-height:1.3;color:var(--white);margin:0 0 16px}
+.hero .by{font-family:var(--head);font-weight:600;font-size:18px;color:var(--lime);margin:22px 0 0}
+
+.case .letter{font-family:var(--head);font-weight:800;font-size:22px;width:44px;height:44px;border-radius:50%;background:var(--lime);display:grid;place-items:center;margin-bottom:10px}
+
+.pager{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:60px;padding-top:24px;border-top:1px solid var(--line)}
+.btn{background:var(--black);color:var(--white);border:0;border-radius:12px;padding:12px 20px;font-family:var(--head);font-weight:600;font-size:17px}
+.btn.ghost{background:var(--white);color:var(--black);border:1px solid var(--line)}
+.keys{font-size:15px;color:var(--muted);margin-top:14px}
+.imprint{font-size:17px;color:var(--muted)}
+.info{border:2px dashed var(--black);border-radius:18px;padding:18px 22px;margin:24px 0}
+.info .it{font-family:var(--head);font-weight:800;display:flex;gap:10px;align-items:center;margin:0 0 6px}
+.info .it::before{content:"</>";font-family:var(--mono);font-size:14px;background:var(--black);color:var(--lime);border-radius:6px;padding:2px 7px}
+.info p:last-child,.info ul:last-child,.info .tablewrap:last-child{margin-bottom:0}
+.ph{background:var(--grey);border:2px dashed #999;border-radius:8px;padding:2px 8px;font-family:var(--mono);font-size:.85em}
+.person{font-size:19px;line-height:1.5}
+.person strong{font-family:var(--head);font-size:22px}
+
+@media (max-width:900px){
+  .shell,.shell.collapsed{grid-template-columns:1fr}
+  aside.nav{position:fixed;inset:0 auto 0 0;width:min(340px,88vw);z-index:30;transform:translateX(-102%);transition:transform .25s;height:100%;padding-top:calc(env(safe-area-inset-top, 0px) + 24px)}
+  aside.nav.open{transform:none;box-shadow:0 0 0 100vmax rgba(0,0,0,.45);visibility:visible}
+  .shell.collapsed aside.nav{visibility:visible}
+  .topbar{padding:12px 18px;padding-top:calc(12px + env(safe-area-inset-top, 0px))}
+  main{padding:28px 18px 90px}
+  body{font-size:18px}
+  .hero{padding:32px 24px}
+  .prompt pre{padding-right:20px;padding-top:50px}
+  h2{font-size:27px}
+  .pair{grid-template-columns:1fr}
+  .loopwrap{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="shell" id="shell">
+  <aside class="nav" id="nav" aria-label="Etappen">
+    <p class="brand">PICTS Aufbaumodul: Künstliche Intelligenz in der Schule<b>Halbtag 4: Vibe Coding und kreatives Arbeiten mit <span>KI</span></b></p>
+    <ol class="stages" id="stages"></ol>
+    <div class="navfoot"><button id="openAll">Alles aufklappen</button><button id="impBtn">Impressum</button></div>
+  </aside>
+  <div>
+    <div class="topbar">
+      <button class="iconbtn" id="menuBtn" aria-controls="nav">Etappen</button>
+      <span class="crumb" id="crumb"></span>
+      <span class="ctrl"><button class="iconbtn" id="prevTop" aria-label="Zurück">‹</button><button class="iconbtn" id="nextTop" aria-label="Weiter">›</button></span>
+    </div>
+    <main id="main" tabindex="-1"></main>
+  </div>
+</div>
+
+<script>
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+const P = (title, text) => `<div class="prompt"><p class="ptitle">${esc(title)}</p><pre>${esc(text.trim())}</pre><button class="copy" type="button">Kopieren</button></div>`;
+const MORE = (summary, html) => `<details><summary>${summary}</summary>${html}</details>`;
+const CHECKS = items => `<div class="checks">${items.map(i=>`<label><input type="checkbox"><span>${i}</span></label>`).join("")}</div>`;
+const L = (text, url) => `<a href="${url}" target="_blank" rel="noopener">${text}</a>`;
+
+/* ================= INHALT ================= */
+const INFO = (title, html) => `<div class="info"><p class="it">${title}</p>${html}</div>`;
+
+const STAGES = [
+{ n:"0", name:"Basislager", title:"Start", pages:[
+{ id:"basislager", title:"Start", html:`
+<div class="hero">
+  <p class="kicker">PICTS Aufbaumodul: Künstliche Intelligenz in der Schule</p>
+  <p class="halbtag">Halbtag 4</p>
+  <h1>Vibe Coding und kreatives Arbeiten mit <span>KI</span></h1>
+  <p class="lead">PICTS erleben KI als Werkzeug zur Gestaltung und Problemlösung mit praktischen Anwendungen.</p>
+  <p>Heute baut ihr zu zweit eine eigene kleine App, ohne programmieren zu können. Danach experimentiert ihr kreativ weiter und überlegt, was das für eure Rolle als PICTS im Schulhaus bedeutet.</p>
+  <p class="by">Sabrina Meier</p>
+</div>
+
+<h2>Ziele</h2>
+<ul>
+<li>Ihr könnt erklären, was Vibe Coding ist, woher der Begriff kommt und wo seine Grenzen liegen.</li>
+<li>Ihr habt selbst eine kleine App mit KI gebaut und wisst, wie ihr sie sichern und teilen könnt.</li>
+<li>Ihr erkennt Parallelen zwischen Vibe Coding und dem Informatikunterricht.</li>
+<li>Ihr habt kreative KI-Werkzeuge ausprobiert oder Ideen für weitere Projekte gesammelt.</li>
+<li>Ihr könnt als PICTS beurteilen, wann ein KI-gebautes Tool im Unterricht sinnvoll ist und wann nicht.</li>
+</ul>
+
+<h2>Die Expedition</h2>
+<ol class="agenda">
+<li><b><span>1</span>Warm-up</b><em>Practice-Runde</em></li>
+<li><b><span>2</span>Kompass</b><em>Was ist Vibe Coding?</em></li>
+<li><b><span>3</span>Erster Gipfel</b><em>Von der Idee zum Produkt: Projektstart, Bauen, Zeigt her!</em></li>
+<li><b><span>4</span>Abzweigung</b><em>Weiterdenken: Kreativ-Labor oder Ideenbörse</em></li>
+<li><b><span>5</span>Rastplatz</b><em>Code verstehen · Teilen und Versionieren</em></li>
+<li><b><span>6</span>Wegweiser</b><em>PICTS-Perspektive</em></li>
+<li><b><span>7</span>Heimweg</b><em>Transfer</em></li>
+</ol>
+<p class="keys">Mit den Pfeiltasten links und rechts blättert ihr weiter. Bereiche mit Plus lassen sich aufklappen.</p>
+
+<h2>Vorbereitung</h2>
+<div class="box">
+<h3>Bitte vor dem Kurs erledigen</h3>
+<ol>
+<li><strong>Beispiel mitbringen:</strong> Etwas, das ihr schon mit KI gemacht habt: ein Tool, ein Spiel, ein Bild, ein Song, ein Text. Auch ein Versuch, der nicht geklappt hat, ist willkommen. Wer noch nichts gemacht hat, bringt eine Frage oder eine Idee mit.</li>
+<li><strong>Konto bereit haben:</strong> Ein Google-Konto, mit dem ihr euch unter gemini.google.com anmelden könnt. Bitte vorher einmal einloggen. Alternativ ein Konto bei claude.ai.</li>
+<li><strong>Laptop mitbringen.</strong> Tablets gehen, sind beim Bauen aber umständlicher.</li>
+</ol>
+</div>
+`}]},
+
+{ n:"1", name:"Warm-up", title:"Practice-Runde", pages:[
+{ id:"warmup", title:"Practice-Runde", html:`
+<p class="kicker">1 · Warm-up</p>
+<h1>Practice-Runde</h1>
+<p class="core">Ihr bringt schon Erfahrungen mit. Wir beginnen mit dem, was in diesem Raum bereits da ist.</p>
+
+<div class="box">
+<h3>Auftrag im Plenum</h3>
+<p>Wer mag, zeigt sein mitgebrachtes Beispiel. Pro Person höchstens 90 Sekunden:</p>
+<ul>
+<li>Was habe ich gemacht, und mit welchem Werkzeug?</li>
+<li>Was hat mich überrascht, positiv oder negativ?</li>
+<li>Wofür habe ich es genutzt, oder wofür könnte ich es nutzen?</li>
+</ul>
+</div>
+
+<div class="timer" id="timer">
+  <div class="disp" id="tDisp" aria-live="off">1:30</div>
+  <div class="bar"><i id="tBar"></i></div>
+  <div class="tbtns">
+    <button class="go" id="tStart">Start</button>
+    <button id="tReset">Zurücksetzen</button>
+  </div>
+  <div class="set"><label for="tMin">Minuten</label><input id="tMin" type="number" min="0" max="30" value="1"><label for="tSec">Sekunden</label><input id="tSec" type="number" min="0" max="59" step="5" value="30"></div>
+</div>
+`}]},
+
+{ n:"2", name:"Kompass", title:"Was ist Vibe Coding?", pages:[
+{ id:"begriff", title:"Was ist Vibe Coding?", html:`
+<p class="kicker">2 · Kompass</p>
+<h1>Was ist Vibe Coding?</h1>
+<p class="core">Software in Worten beschreiben und von einer KI bauen lassen, ohne den Code selbst zu schreiben oder zu prüfen.</p>
+
+<h2>Wo der Begriff zum ersten Mal fällt</h2>
+<div class="tweet">
+  <div class="who"><div class="av">AK</div><div class="nm">Andrej Karpathy<small>@karpathy · 2. Februar 2025 · X</small></div></div>
+  <blockquote>«There's a new kind of coding I call <mark>"vibe coding"</mark> …»</blockquote>
+  <p class="meta">Übersetzt: «Es gibt eine neue Art zu programmieren, die ich Vibe Coding nenne.» · ${L("Ganzen Post auf X lesen","https://x.com/karpathy/status/1886192184808149383")}</p>
+</div>
+<p>Karpathy ist Informatiker, hat OpenAI mitgegründet und war KI-Chef bei Tesla. Sein Post war kein Manifest, sondern ein halb ironischer Erfahrungsbericht aus der Arbeit an einem privaten Projekt.</p>
+${MORE("Was im Post weiter steht: der Kontext", `
+<ul>
+<li><strong>Sich den «Vibes» hingeben:</strong> Man lasse sich ganz auf den Flow ein und vergesse, dass es den Code überhaupt gibt.</li>
+<li><strong>Warum das geht:</strong> Die Sprachmodelle seien einfach zu gut geworden. Er nennt den KI-Code-Editor Cursor mit dessen Agenten Composer und dem Modell Claude Sonnet.</li>
+<li><strong>Sprechen statt tippen:</strong> Seine Wünsche diktierte er mit der Spracherkennungs-App SuperWhisper und berührte die Tastatur kaum noch.</li>
+<li><strong>Alles annehmen:</strong> Änderungen nahm er immer mit «Accept All» an, ohne sie zu lesen. Fehlermeldungen kopierte er kommentarlos zurück.</li>
+<li><strong>Kontrollverlust:</strong> Der Code wuchs über das hinaus, was er selbst noch überblickte.</li>
+<li><strong>Sein Fazit:</strong> Für Wegwerf-Projekte am Wochenende sei das gar nicht so schlecht.</li>
+</ul>
+<p>Rückblickend nannte Karpathy den Post einen Gedanken unter der Dusche, den er nebenbei abgeschickt habe. Er habe aber zum richtigen Moment einen Namen für etwas gefunden, das viele gleichzeitig spürten.</p>
+`)}
+
+<h2>Vom Post zum Wort des Jahres</h2>
+<div class="tablewrap"><table>
+<tr><th>Wann</th><th>Was</th></tr>
+<tr><td>Feb 2025</td><td>Karpathy prägt den Begriff auf X.</td></tr>
+<tr><td>Mär 2025</td><td>Der Entwickler Simon Willison schärft die Definition: Vibe Coding heisst, den generierten Code nicht zu prüfen.</td></tr>
+<tr><td>Nov 2025</td><td>Das Collins Dictionary kürt «vibe coding» zum Wort des Jahres.</td></tr>
+<tr><td>2026</td><td>Karpathy erklärt Vibe Coding für Profis als überholt. Neuer Begriff: Agentic Engineering, bei dem Menschen mehrere KI-Agenten steuern und beaufsichtigen.</td></tr>
+</table></div>
+
+<div class="note"><p><strong>Merke:</strong> Entscheidend ist nicht, ob eine KI den Code schreibt, sondern <mark>ob ein Mensch den Code prüft und versteht</mark>. Wer nur das Ergebnis anschaut, betreibt Vibe Coding. Wer liest, testet und nachfragt, programmiert KI-gestützt.</p></div>
+
+<h2>Schätzfrage</h2>
+<div class="box"><h3>Handzeichen</h3><p>Erfahrene Profis bearbeiten echte Aufgaben in ihren eigenen Software-Projekten, einmal mit und einmal ohne KI. Wie viel schneller sind sie mit KI?</p><p><strong>langsamer · gleich schnell · 20 % schneller · 50 % schneller · doppelt so schnell</strong></p></div>
+${MORE("Auflösung: die METR-Studie (Juli 2025)", `
+<p>Die Forschungsorganisation METR liess 16 erfahrene Open-Source-Entwickler 246 echte Aufgaben bearbeiten. Vorher erwarteten sie, mit KI 24 % schneller zu sein. Danach schätzten sie, 20 % schneller gewesen zu sein. Gemessen waren sie <mark>19 % langsamer</mark>.</p>
+<p>Die Studie betrifft Profis in grossen, vertrauten Projekten, nicht Lehrpersonen, die ein Quiz bauen. Sie zeigt aber: Das Gefühl, mit KI produktiv zu sein, kann täuschen.</p>
+`)}
+
+<h2>Chancen und Grenzen</h2>
+<div class="pairs">
+ <div class="pair">
+  <div class="pc"><div class="ic">+</div><div><h3>Massgeschneidert</h3><p>Material, das genau zur eigenen Klasse passt.</p><p class="ex">Ein Wortschatz-Memory zum aktuellen Lesebuchkapitel, gebaut in 20 Minuten.</p></div></div>
+  <div class="pg"><div class="ic">⚡</div><div><h3>Fachliche Fehler</h3><p>Die KI erfindet auch Falsches, und es sieht überzeugend aus.</p><p class="ex">Im Memory steht eine falsche Übersetzung. Niemand merkt es, die Kinder lernen sie.</p></div></div>
+ </div>
+ <div class="pair">
+  <div class="pc"><div class="ic">+</div><div><h3>Barrieren abbauen</h3><p>Lösungen für Bedürfnisse, für die es nichts zu kaufen gibt.</p><p class="ex">Eine Lese-App mit grosser Schrift, hohem Kontrast und Vorlesefunktion für ein Kind mit Sehbeeinträchtigung.</p></div></div>
+  <div class="pg"><div class="ic">⚡</div><div><h3>Interaktiv ist nicht lernwirksam</h3><p>Klicken lässt sich leicht erzeugen, Denken nicht.</p><p class="ex">Ein buntes Quiz, bei dem man so lange klickt, bis es grün wird, ohne nachzudenken.</p></div></div>
+ </div>
+ <div class="pair">
+  <div class="pc"><div class="ic">+</div><div><h3>Selbst gestalten</h3><p>Ideen werden ohne Programmierkenntnisse Wirklichkeit.</p><p class="ex">Eine Lehrperson setzt endlich das Lernspiel um, das sie seit Jahren im Kopf hat.</p></div></div>
+  <div class="pg"><div class="ic">⚡</div><div><h3>Niemand versteht den Code</h3><p>Wenn etwas kaputtgeht, weiss niemand, warum.</p><p class="ex">Das Spiel läuft im Unterricht plötzlich nicht mehr, und die Lehrperson kann es nicht reparieren.</p></div></div>
+ </div>
+ <div class="pair">
+  <div class="pc"><div class="ic">+</div><div><h3>Schnell ausprobieren</h3><p>Ein Prototyp ist in Minuten testbar.</p><p class="ex">Zwei Varianten eines Lernspiels vor der Lektion vergleichen und die bessere wählen.</p></div></div>
+  <div class="pg"><div class="ic">⚡</div><div><h3>Daten und Sicherheit</h3><p>KI-Code hat häufig Sicherheitslücken.</p><p class="ex">Bei einer App-Bau-Plattform hatten 170 von 1645 Apps eine Lücke, über die Personendaten offen lagen.</p></div></div>
+ </div>
+</div>
+`}]},
+
+{ n:"3", name:"Erster Gipfel", title:"Von der Idee zum Produkt", pages:[
+{ id:"idee-produkt", title:"Von der Idee zum Produkt", html:`
+<p class="kicker">3 · Erster Gipfel</p>
+<h1>Von der Idee zum Produkt</h1>
+<p class="core">Vibe Coding folgt demselben Kreislauf wie Design Thinking: verstehen, Idee entwickeln, Prototyp bauen, testen, und dann wieder von vorn.</p>
+
+<div class="loopwrap">
+<svg viewBox="0 0 360 360" role="img" aria-label="Kreislauf aus vier Phasen: Verstehen, Idee, Prototyp, Testen">
+  <defs><marker id="ah" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#111"/></marker></defs>
+  <circle cx="180" cy="180" r="118" fill="none" stroke="#E2E2DE" stroke-width="16"/>
+  <path d="M 222 70 A 118 118 0 0 1 290 138" fill="none" stroke="#111" stroke-width="4" marker-end="url(#ah)"/>
+  <path d="M 290 222 A 118 118 0 0 1 222 290" fill="none" stroke="#111" stroke-width="4" marker-end="url(#ah)"/>
+  <path d="M 138 290 A 118 118 0 0 1 70 222" fill="none" stroke="#111" stroke-width="4" marker-end="url(#ah)"/>
+  <path d="M 70 138 A 118 118 0 0 1 138 70" fill="none" stroke="#111" stroke-width="4" marker-end="url(#ah)"/>
+  <g font-family="Bricolage Grotesque, sans-serif" font-weight="800" text-anchor="middle">
+    <circle cx="180" cy="62" r="46" fill="#def428"/><text x="180" y="58" font-size="15">1</text><text x="180" y="76" font-size="15">Verstehen</text>
+    <circle cx="298" cy="180" r="46" fill="#def428"/><text x="298" y="176" font-size="15">2</text><text x="298" y="194" font-size="15">Idee</text>
+    <circle cx="180" cy="298" r="46" fill="#def428"/><text x="180" y="294" font-size="15">3</text><text x="180" y="312" font-size="15">Prototyp</text>
+    <circle cx="62" cy="180" r="46" fill="#def428"/><text x="62" y="176" font-size="15">4</text><text x="62" y="194" font-size="15">Testen</text>
+    <text x="180" y="176" font-size="20" fill="#111">Vibe</text><text x="180" y="198" font-size="20" fill="#111">Coding</text>
+  </g>
+</svg>
+<div>
+<ol class="steps" style="margin:0">
+<li><div><strong>Verstehen.</strong> Wer braucht was? Welches Problem soll gelöst werden?</div></li>
+<li><div><strong>Idee.</strong> Was genau soll die App können? Daraus wird der Bauplan. <em>→ 3.1</em></div></li>
+<li><div><strong>Prototyp.</strong> Die KI baut eine erste Version. <em>→ 3.2</em></div></li>
+<li><div><strong>Testen.</strong> Ausprobieren, zeigen, Rückmeldung holen. Und zurück in den Kreis. <em>→ 3.3</em></div></li>
+</ol>
+</div>
+</div>
+
+<h2>Einblick in ein eigenes Vibe-Coding-Projekt</h2>
+<p>Ein Jeopardy-Spiel für den Unterricht, gebaut mit Gemini. Die wichtigste Erkenntnis vorweg: <mark>Wer gut beschreibt, was er möchte, bekommt schon im ersten Wurf ein starkes Ergebnis.</mark> Kleine Projekte brauchen dann nur wenige Runden.</p>
+<div class="card" style="max-width:640px"><h3>Jeopardy Vibe Coding</h3><p>Das Spiel und sein Code liegen auf GitHub. Wie Code dort gesichert und geteilt wird, schauen wir uns in 5.1 an.</p><p><a class="btn" style="display:inline-block;text-decoration:none" href="https://github.com/SabrinaAlexM/jeopardy-vibecoding/tree/main" target="_blank" rel="noopener">Zum Projekt auf GitHub</a></p></div>
+`},
+{ id:"projektstart", title:"Projektstart", sub:"3.1", html:`
+<p class="kicker">3 · Erster Gipfel</p>
+<h1>3.1 Projektstart</h1>
+<p class="core">Zu zweit wählt ihr ein Werkzeug und eine Idee und füllt den Bauplan aus. Ein guter Bauplan spart euch später viele Runden.</p>
+
+<h2>Werkzeug wählen</h2>
+<div class="tablewrap"><table>
+<tr><th>Werkzeug</th><th>Kosten</th><th>Gut zu wissen</th></tr>
+<tr><td><strong>Gemini Canvas</strong><span class="badge">empfohlen</span></td><td>Gratis mit Google-Konto</td><td>Live-Vorschau der App. Unter dem Eingabefeld «Canvas» wählen. Mit demselben Konto auch Bilder und Musik.</td></tr>
+<tr><td><strong>Claude</strong> (Artefakte)</td><td>Gratis mit Konto</td><td>Sehr gute Code-Qualität. Im Gratisplan ist die Anzahl Nachrichten begrenzt, das kann beim Verbessern knapp werden.</td></tr>
+<tr><td><strong>Google AI Studio</strong></td><td>Gratis mit Google-Konto</td><td>Eigener Bereich zum App-Bauen, etwas technischer als Canvas.</td></tr>
+<tr><td><strong>ChatGPT</strong></td><td>Gratis mit Konto</td><td>Die Canvas-Vorschau wurde 2026 eingestellt. Den Code muss man selbst als HTML-Datei speichern.</td></tr>
+<tr><td><strong>Lovable</strong></td><td>Gratis: 5 Credits pro Tag</td><td>Baut ganze Web-Apps mit Datenbank. Die Gratis-Credits reichen für 2 bis 4 Schritte, für heute zu wenig.</td></tr>
+</table></div>
+
+<h2>Rollen im Tandem: Driver und Navigator</h2>
+<div class="grid">
+<div class="card"><h3>Driver</h3><p>Sitzt an der Tastatur, führt den Chat, testet die App und setzt Änderungen um.</p></div>
+<div class="card"><h3>Navigator</h3><p>Behält Bauplan und Lernende im Blick, prüft Inhalte, entdeckt Fehler und denkt einen Schritt voraus.</p></div>
+</div>
+<p>Nach etwa der Hälfte der Bauzeit tauscht ihr die Rollen.</p>
+${INFO("Kennt ihr aus dem Informatikunterricht: Pair Programming", `<p>Driver und Navigator sind die Rollen aus dem Pair Programming. Zwei Personen arbeiten an einem Programm, eine schreibt, eine denkt mit und kontrolliert, regelmässig wird gewechselt. Im Informatikunterricht wird diese Arbeitsform gezielt eingesetzt, weil Lernende dabei ihr Denken aussprechen und sich gegenseitig korrigieren. Beim Vibe Coding funktioniert sie genauso.</p>`)}
+
+<h2>Idee wählen</h2>
+<p>Nehmt eine der Ideen oder setzt eine eigene um. Wichtig: Es soll etwas sein, das ihr wirklich brauchen könnt.</p>
+<div class="grid">
+<div class="card"><h3>Wortschatz-Memory</h3><p>Bild-Wort-Paare für DaZ, Fremdsprachen oder Fachbegriffe.</p><span class="tag">Zyklus 1–2</span></div>
+<div class="card"><h3>Quiz mit Begründung</h3><p>Nach jeder Antwort eine kurze Erklärung, am Schluss eine Auswertung.</p><span class="tag">alle Zyklen</span></div>
+<div class="card"><h3>Interaktive Geschichte</h3><p>An Verzweigungen entscheiden die Lesenden, wie es weitergeht.</p><span class="tag">Zyklus 2–3</span></div>
+<div class="card"><h3>Klassen-Werkzeug</h3><p>Gruppen-Timer, Zufallsgenerator für Gruppen, Lärmampel.</p><span class="tag">alle Zyklen</span></div>
+<div class="card"><h3>Zeitstrahl-Puzzle</h3><p>Ereignisse in die richtige Reihenfolge bringen.</p><span class="tag">Zyklus 2–3</span></div>
+<div class="card"><h3>Geschichten-Würfel</h3><p>Die App würfelt Figur, Ort und Problem, die Klasse erzählt daraus eine Geschichte.</p><span class="tag">Zyklus 1–2</span></div>
+</div>
+
+<h2>Bauplan ausfüllen</h2>
+<p>Füllt die Lücken in eckigen Klammern aus. Dann ist der Bauplan gleichzeitig euer erster Prompt.</p>
+${P("Bauplan als erster Prompt", `
+Baue eine App als einzelne HTML-Datei ohne externe Abhängigkeiten.
+
+WAS: [Art der App, z.B. Wortschatz-Memory]
+FÜR WEN: [Stufe, Fach, Situation, z.B. 3. Klasse, Deutsch, Freiarbeit am Tablet]
+LERNZIEL: [was die Lernenden danach können sollen]
+
+SO FUNKTIONIERT ES:
+[Ablauf aus Sicht der Lernenden, Schritt für Schritt]
+
+INHALTE:
+[eigene Inhalte einfügen oder: Erfinde passende Inhalte, die ich danach prüfe]
+
+DESIGN: [z.B. ruhig, grosse Schrift, hoher Kontrast, kindgerecht]
+
+NICHT DABEI: Kein Login, keine Namen, keine Speicherung von Daten, keine Verbindung zu anderen Diensten.
+
+Die App soll auf Laptop und Tablet funktionieren. Alle Texte auf Deutsch mit Schweizer Rechtschreibung (ss statt ß).
+Stelle mir zuerst bis zu drei Rückfragen, falls etwas unklar ist. Baue danach eine erste einfache Version.
+`)}
+${INFO("Kennt ihr aus dem Informatikunterricht: Problem zerlegen", `<p>Ein Bauplan zerlegt ein Problem in Teile: Wer, was, wie, was nicht. Genau das üben Lernende, wenn sie einen Algorithmus planen, bevor sie programmieren. Je klarer die Beschreibung, desto besser das Programm, egal ob ein Mensch oder eine KI es schreibt.</p>`)}
+`},
+{ id:"bauen", title:"Bauen", sub:"3.2", html:`
+<p class="kicker">3 · Erster Gipfel</p>
+<h1>3.2 Bauen</h1>
+<p class="core">Der erste Wurf ist bei einem guten Bauplan oft schon stark. Den Rest erledigen wenige, gezielte Runden: Prototyp, testen, verbessern.</p>
+
+<h2>So geht ihr vor</h2>
+<ol class="steps">
+<li><div><strong>Bauplan einfügen.</strong> Rückfragen der KI beantworten.</div></li>
+<li><div><strong>Testen.</strong> Die App so ausprobieren, wie es ein Kind tun würde. Auch absichtlich «falsch».</div></li>
+<li><div><strong>Eine Änderung pro Runde.</strong> Nicht fünf Wünsche auf einmal. Nach jeder Änderung wieder testen.</div></li>
+<li><div><strong>Zuerst Funktion, dann Design.</strong> Erst muss es laufen, dann darf es schön werden.</div></li>
+<li><div><strong>Inhalte prüfen.</strong> Stimmen Fakten, Rechtschreibung und Lösungen?</div></li>
+<li><div><strong>Sichern.</strong> Wenn eine Version gut ist, den Code als Datei sichern. Mehr dazu in 5.1.</div></li>
+</ol>
+
+<h2>Prompts zum Verbessern</h2>
+${P("Kleine Änderung, Rest bleibt", `Ändere nur [was]. Lass alles andere genau so, wie es ist.`)}
+${P("Lesbarkeit", `Mach die Schrift grösser und den Kontrast stärker. Die Knöpfe sollen auch auf einem Tablet gut zu treffen sein.`)}
+${P("Differenzieren", `Erstelle zusätzlich eine einfachere Version für [Stufe] und eine anspruchsvollere für [Stufe]. Man soll zu Beginn zwischen den Niveaus wählen können.`)}
+${P("Rückmeldung", `Gib nach jeder Antwort eine kurze, freundliche Rückmeldung mit Begründung, nicht nur richtig oder falsch.`)}
+${P("Lebendiger machen", `Gestalte die App lebendiger: passende Emojis oder einfache Illustrationen direkt im Code, kurze Töne für richtige und falsche Antworten, ein Knopf, um den Ton auszuschalten.`)}
+
+<h2>Wenn etwas nicht funktioniert</h2>
+<p>«Geht nicht» ist der schlechteste Fehlerbericht. Beschreibt genau, dann findet die KI den Fehler viel schneller.</p>
+${P("Fehlerbericht", `
+Erwartet: [was hätte passieren sollen]
+Passiert: [was stattdessen passiert]
+So löse ich es aus: [Schritte, tritt es immer auf?]
+
+Ändere noch nichts. Erkläre mir zuerst die wahrscheinlichste Ursache. Schlage danach eine Korrektur vor, die nur diese Stelle ändert.
+`)}
+${INFO("Kennt ihr aus dem Informatikunterricht: Testen und Debuggen", `<p>Fehler finden und beheben heisst in der Informatik Debugging. Lernende üben dabei, einen Fehler genau zu beschreiben, ihn gezielt auszulösen und Schritt für Schritt einzugrenzen. Der Fehlerbericht oben folgt genau dieser Logik. Beim Vibe Coding macht ihr dasselbe, nur dass die KI die Korrektur schreibt.</p>`)}
+${MORE("Die KI dreht im Kreis? Das hilft", `
+<div class="tablewrap"><table>
+<tr><th>Anzeichen</th><th>Was hilft</th></tr>
+<tr><td>Die KI meldet «behoben», der Fehler ist noch da.</td><td>Zuerst die Ursache erklären lassen, noch nichts ändern.</td></tr>
+<tr><td>Jede Korrektur macht etwas anderes kaputt.</td><td>Zur letzten guten Version zurück und neu ansetzen.</td></tr>
+<tr><td>Nach vielen Runden wird alles unübersichtlich.</td><td>Neuer Chat: aktuellen Code einfügen und kurz beschreiben, was die App können soll.</td></tr>
+<tr><td>Eine Funktion will einfach nicht.</td><td>«Verfolge einen ganz anderen Ansatz für diese Funktion.»</td></tr>
+</table></div>
+<p>Faustregel: Nach dem dritten erfolglosen Versuch die Strategie wechseln, nicht nochmals dasselbe verlangen.</p>
+`)}
+`},
+{ id:"zeigt-her", title:"Zeigt her!", sub:"3.3", html:`
+<p class="kicker">3 · Erster Gipfel</p>
+<h1>3.3 Zeigt her!</h1>
+<p class="core">Erste Entwürfe sind nie fertig. Genau deshalb lohnt es sich, sie jetzt zu zeigen. Das ist die Phase «Testen» im Kreislauf.</p>
+<div class="box">
+<h3>Werkstattgespräch</h3>
+<p>Je zwei Tandems zeigen sich gegenseitig ihre Apps und probieren sie aus. Sprecht dabei über:</p>
+<ul>
+<li><strong>Was kann es schon?</strong></li>
+<li><strong>Wo hinkt es noch?</strong></li>
+<li><strong>Was würdet ihr als Nächstes bauen?</strong></li>
+</ul>
+</div>
+<div class="note"><p><strong>Grösser denken:</strong> Vibe Coding geht weit über eine kleine Web-App hinaus. Mit denselben Werkzeugen entstehen auch Programme für den Computer, geteilte Artefakte, Code für den Calliope mini, Auswertungen von Tabellen oder kleine Helfer für den Schulalltag.</p></div>
+`}]},
+
+{ n:"4", name:"Abzweigung", title:"Weiterdenken", pages:[
+{ id:"weiterdenken", title:"Weiterdenken", html:`
+<p class="kicker">4 · Abzweigung</p>
+<h1>Weiterdenken</h1>
+<p class="core">Nach dem ersten Gipfel wählt ihr euren Weg: kreativ experimentieren oder mit Vibe Coding weiterbauen.</p>
+<div class="grid">
+<div class="card"><h3>Weg A · Kreativ-Labor</h3><p>Bild, Musik, Video und verrückte Experimente. Für alle, die kreative KI-Werkzeuge noch nicht kennen oder ihre App mit eigenen Medien aufpeppen wollen.</p><p><button class="btn" data-goid="kreativ">Zum Kreativ-Labor</button></p></div>
+<div class="card"><h3>Weg B · Ideenbörse Vibe Coding</h3><p>Weiterbauen oder ein zweites, grösseres Projekt anpacken: Escape Room, Calliope, Barrierefreiheit und mehr.</p><p><button class="btn" data-goid="ideen">Zur Ideenbörse</button></p></div>
+</div>
+<div class="note"><p><strong>Tipp:</strong> Ihr könnt auch beides verbinden. Ein Lernspiel aus der Ideenbörse wird mit einem eigenen Song oder eigenen Bildern aus dem Kreativ-Labor erst richtig eures.</p></div>
+`},
+{ id:"kreativ", title:"Kreativ-Labor", sub:"4.1", html:`
+<p class="kicker">4 · Abzweigung · Weg A</p>
+<h1>4.1 Kreativ-Labor</h1>
+<p class="core">Jetzt wird experimentiert: Songs, Bilder, Videos, Stimmen. Probiert aus, was ihr noch nicht kennt, und denkt dabei an eure Klasse.</p>
+
+<h2>Werkzeuge und Kosten</h2>
+<div class="tablewrap"><table>
+<tr><th>Medium</th><th>Werkzeug</th><th>Kosten</th><th>Achtung</th></tr>
+<tr><td>Bild</td><td>Gemini</td><td>Gratis mit Google-Konto</td><td>Mit privatem Konto erst ab 18 Jahren.</td></tr>
+<tr><td>Musik</td><td>Gemini (Lyria)</td><td>Ohne Abo</td><td>Ab 18 Jahren. Gratis nur Clips bis 30 Sekunden.</td></tr>
+<tr><td>Musik</td><td>Suno</td><td>Gratis rund 10 Songs pro Tag</td><td>Nur private, nicht kommerzielle Nutzung. Im Gratisplan nur noch wenige Downloads insgesamt.</td></tr>
+<tr><td>Musik</td><td>Udio</td><td>Gratis mit wenigen Credits</td><td>Downloads sind abgeschaltet. Songs lassen sich nur in Udio anhören.</td></tr>
+<tr><td>Video</td><td>Video-KI in Gemini, Canva und anderen</td><td>Meist nur wenige Gratis-Versuche</td><td>Angebote, Grenzen und Altersvorgaben ändern sich laufend. Vor Ort prüfen.</td></tr>
+<tr><td>Text</td><td>Gemini, Claude oder andere Chatbots</td><td>Gratis</td><td>Inhalte immer selbst prüfen.</td></tr>
+</table></div>
+
+<h2>Experimente mit Schulbezug</h2>
+<div class="grid">
+<div class="card"><h3>Lernsong</h3><p>Ein Song, der Grammatik oder Fachbegriffe erklärt und dabei gleich vormacht, zum Beispiel ein Reggaeton zum Present Continuous.</p><p class="src">${L("Freinhofer: Songs auf Knopfdruck","https://freinhofer.substack.com/p/suno")}</p><span class="tag">Musik</span></div>
+<div class="card"><h3>Song mit Lückentext</h3><p>Aus dem Lernsong einen Lückentext machen: hören, mitlesen, ergänzen.</p><p class="src">${L("schulKI-Blog: Songs nach eigenen Vorstellungen","https://schulki.de/blog/neu-erschaffe-fertige-songs-nach-deinen-vorstellungen")}</p><span class="tag">Musik</span><span class="tag">Text</span></div>
+<div class="card"><h3>Alte Lieder neu vertonen</h3><p>Ein Gedicht oder Lied aus dem 19. Jahrhundert in einen heutigen Stil übertragen und vergleichen.</p><p class="src">${L("nmz badblog: Suno im Musikunterricht","https://blogs.nmz.de/badblog/2024/04/15/suno-ai-im-musikunterricht-ein-konzept-um-lieder-des-19-jahrhunderts-besser-zu-verstehen/")}</p><span class="tag">Musik</span></div>
+<div class="card"><h3>Musikvideo mit der Klasse</h3><p>Eine 2. Klasse schrieb den Text, KI machte Lied und Bilder: ein Musikvideo zu Sankt Martin mit dem Klassenmaskottchen.</p><p class="src">${L("KMS Bildung: Musikvideos mit KI","https://www.kms-bildung.de/2025/11/09/musikvideos-mit-ki-im-unterricht-ein-praxisversuch/")}</p><span class="tag">Musik</span><span class="tag">Bild</span><span class="tag">Video</span></div>
+<div class="card"><h3>Song-Station mit Reflexion</h3><p>Kinder erstellen in einer Lernstation einen Song und denken danach darüber nach, wie es sich anfühlt, wenn eine Maschine komponiert.</p><p class="src">${L("Lea Schulz: Station 13","https://praxis.leaschulz.com/2025/03/06/station-13-gs/")}</p><span class="tag">Musik</span></div>
+<div class="card"><h3>Escape-Room-Finale</h3><p>Ein KI-Song als Abschluss, der die gelösten Rätsel nochmals aufgreift.</p><p class="src">${L("Begabungslotse: Escape Games im Unterricht","https://www.begabungslotse.de/hybrider-lernraum/talente-foerdern/escape-games-im-unterricht")}</p><span class="tag">Musik</span></div>
+<div class="card"><h3>Echt oder KI?</h3><p>Echte Fotos und KI-Bilder mischen. Wer erkennt, was echt ist, und woran? Ein starker Einstieg in Medienkompetenz.</p><span class="tag">Bild</span><span class="tag">Medienbildung</span></div>
+<div class="card"><h3>Klassenmaskottchen</h3><p>Ein Maskottchen erfinden, in verschiedenen Situationen zeichnen lassen und ihm einen eigenen Song geben.</p><span class="tag">Bild</span><span class="tag">Musik</span></div>
+<div class="card"><h3>Gedicht als Rap, Schlager, Oper</h3><p>Denselben Text in drei Stilen vertonen und vergleichen: Was macht die Musik mit der Bedeutung?</p><span class="tag">Musik</span></div>
+<div class="card"><h3>Hörspiel</h3><p>Eine selbst geschriebene Szene mit Geräuschen und Musikteppich zum Leben erwecken.</p><span class="tag">Musik</span><span class="tag">Text</span></div>
+<div class="card"><h3>Bilderbuch in einem Stil</h3><p>Eine kurze Geschichte mit Bildern in einheitlichem Stil, als interaktive App oder zum Ausdrucken.</p><span class="tag">Bild</span><span class="tag">Text</span></div>
+<div class="card"><h3>Crazy: Zeitreise-Interview</h3><p>Eine historische Figur «interviewen», Porträt dazu erzeugen, als Radiosendung vertonen. Und dann gemeinsam prüfen: Was davon ist erfunden?</p><span class="tag">Text</span><span class="tag">Bild</span><span class="tag">Musik</span></div>
+</div>
+
+<h2>Prompts zum Start</h2>
+${P("Musik: Lernsong", `Ein fröhlicher Lernsong für Kinder der [Stufe] zum Thema [Thema], Stil [z.B. Pop, Reggaeton, Rap], eingängiger Refrain, klare Aussprache, Text auf Deutsch. Der Text soll diese Begriffe enthalten: [Begriffe].`)}
+${P("Musik: kurzer Jingle für eine App", `Ein kurzer, fröhlicher Jingle für ein Lernspiel für Kinder, Xylophon und leichte Percussion, aufsteigende Melodie, ohne Gesang, etwa 5 Sekunden.`)}
+${P("Bild: einheitlicher Stil", `Erstelle eine Illustration für ein Kinderbuch: [was auf dem Bild zu sehen ist]. Stil: [z.B. weiche Aquarellfarben, freundlich, klare Formen]. Quadratisch, kein Text im Bild. Verwende für alle weiteren Bilder denselben Stil und dieselben Figuren.`)}
+${P("Medien in die eigene App holen", `Füge der App einen Bereich «Eigene Medien» hinzu: Man kann dort eigene Bilder (JPG, PNG) und Klänge (MP3) vom Gerät auswählen, die dann in der App verwendet werden. [Beschreibt, wo die Medien erscheinen sollen.] Die Dateien bleiben auf dem Gerät und werden nirgends hochgeladen.`)}
+
+<div class="warn"><p class="wt">Rechtliches in Kürze</p>
+<ul>
+<li>Keine echten Personen, schon gar keine Kinder, auf KI-Bildern darstellen oder nachbilden. Keine Fotos von Lernenden hochladen.</li>
+<li>KI-Inhalte als solche kennzeichnen, zum Beispiel: «Song erstellt mit Suno».</li>
+<li>Gratisversionen erlauben oft nur private, nicht kommerzielle Nutzung. Im Unterricht vorspielen ist in der Regel möglich, weitergeben oder veröffentlichen genau prüfen.</li>
+<li>Viele Kreativwerkzeuge sind erst ab 13 oder 18 Jahren freigegeben. Lernende dürfen sie oft nicht selbst nutzen.</li>
+</ul></div>
+`},
+{ id:"ideen", title:"Ideenbörse Vibe Coding", sub:"4.2", html:`
+<p class="kicker">4 · Abzweigung · Weg B</p>
+<h1>4.2 Ideenbörse Vibe Coding</h1>
+<p class="core">Weiterbauen oder etwas Neues wagen. Hier sind Ideen aus der Praxis, viele davon mit Erfahrungsberichten von Lehrpersonen.</p>
+
+<h2>Lernspiele und Lernmaterial</h2>
+<div class="grid">
+<div class="card"><h3>Fachwortschatz-Trainer</h3><p>Fachbegriffe üben mit Karten, Zuordnung und Wiederholung.</p><p class="src">${L("Pölert: Vibe Coding im Unterricht","https://unterrichten.digital/2026/07/13/ki-vibe-coding-schule-unterricht/")}</p></div>
+<div class="card"><h3>Geschichts-Adventure</h3><p>Ein Entscheidungsspiel, in dem man historische Situationen durchlebt.</p><p class="src">${L("Pölert: Vibe Coding im Unterricht","https://unterrichten.digital/2026/07/13/ki-vibe-coding-schule-unterricht/")}</p></div>
+<div class="card"><h3>Prüfungsbesprechung zum Selbstlernen</h3><p>Aufgabenkarten mit Musterlösungen, Erklärungen zu typischen Fehlern und Fortschrittsbalken.</p><p class="src">${L("bildungssprache.net: Vibe Coding in Schule und Studium","https://bildungssprache.net/vibe-coding-schule-studium/")}</p></div>
+<div class="card"><h3>Lernapp mit Modulen</h3><p>Flashcards, thematische Quizze und Übungsmodus mit Sofort-Feedback vor einer Prüfung.</p><p class="src">${L("bildungssprache.net","https://bildungssprache.net/vibe-coding-schule-studium/")}</p></div>
+<div class="card"><h3>Sammlung von Schooltools</h3><p>Eine österreichische Plattform sammelt Mini-Tools, die mit Vibe Coding nach Ideen von Lehrpersonen entstanden sind.</p><p class="src">${L("schooltools.at","https://www.schooltools.at/")} · ${L("Wallner/Pecher 2026","https://journals.univie.ac.at/index.php/mp/article/view/10495/10685")}</p></div>
+<div class="card"><h3>Selbstkontrolle und Lernpfade</h3><p>Kleine Web-Apps für Selbstkontrolltests und digitale Lernpfade.</p><p class="src">${L("tibs.at: Vibe Coding verändert Schule","https://tibs.at/news/vibe-coding-veraendert-schule-und-unterricht")}</p></div>
+</div>
+
+<h2>Escape Room</h2>
+<div class="grid">
+<div class="card"><h3>Digitaler Escape Room</h3><p>Mehrere Rätsel hintereinander, jedes ergibt einen Code für das nächste Schloss. Mit Geschichte, Zeitlimit und Abschlussszene.</p><p class="src">${L("Begabungslotse: Escape Games im Unterricht","https://www.begabungslotse.de/hybrider-lernraum/talente-foerdern/escape-games-im-unterricht")}</p></div>
+<div class="card"><h3>Hybrid-Escape</h3><p>Die App ist das digitale Zahlenschloss, die Hinweise liegen auf Papier im Schulzimmer versteckt.</p></div>
+<div class="card"><h3>Escape Room über KI</h3><p>Rätsel, in denen die Lernenden Fehler in KI-Texten finden müssen, um weiterzukommen.</p><p class="src">${L("IQES: Escape-Spiel zu ChatGPT","https://www.iqesonline.net/bildung-digital/ki-unterricht-lernen/unterrichtsbeispiele/escape-spiel/")}</p></div>
+</div>
+${P("Escape Room als Bauplan", `Baue einen digitalen Escape Room als einzelne HTML-Datei ohne externe Abhängigkeiten für [Stufe] zum Thema [Thema]. Geschichte: [kurze Ausgangslage]. Es gibt [Anzahl] Rätsel nacheinander. Jedes Rätsel ergibt einen Code, der das nächste freischaltet. Rätsel: [Rätsel und Lösungen einfügen oder: Schlage passende Rätsel vor]. Mit Countdown von [Minuten] Minuten, Hinweis-Knopf pro Rätsel und Abschlussszene. Keine Speicherung von Daten.`)}
+
+<h2>Calliope mini</h2>
+<div class="grid">
+<div class="card"><h3>Übersetzen statt abtippen</h3><p>Die KI schreibt ein Programm in MakeCode-JavaScript. In MakeCode auf Blöcke umschalten und jeden Block erklären.</p></div>
+<div class="card"><h3>Erst vorhersagen, dann testen</h3><p>Was macht dieser KI-Code? Vermutung notieren, im Simulator prüfen. Das ist PRIMM, mehr dazu in Kapitel 5.</p></div>
+<div class="card"><h3>Debugging-Detektive</h3><p>Die KI erzeugt Code mit einem eingebauten Fehler. Wer findet ihn zuerst?</p></div>
+<div class="card"><h3>Daten-Dashboard</h3><p>Messwerte des Calliope (Temperatur, Lautstärke) als Tabelle in eine vibegecodete Web-App, die Diagramme zeichnet.</p></div>
+</div>
+${P("Calliope-Programm", `Schreibe ein Programm für den Calliope mini 3 in MakeCode-JavaScript: [Funktion, z.B. Lärmampel: leise grün, mittel gelb, laut rot]. Verwende nur Befehle, die es im MakeCode-Editor für den Calliope mini gibt, nicht die des micro:bit. Erkläre danach jede Zeile so, dass eine 5. Klasse sie versteht.`)}
+<p class="src">Editor: ${L("makecode.calliope.cc","https://makecode.calliope.cc/")} · Material: ${L("Calliope Schulmaterial","https://calliope.cc/schulen/schulmaterial")}. Tipp: KI-Modelle verwechseln gerne Calliope- und micro:bit-Befehle. Immer im Simulator testen.</p>
+
+<h2>Barrierefreiheit und Diklusion</h2>
+<div class="grid">
+<div class="card"><h3>Ein Knopf, eine Reaktion</h3><p>Ein grosser Knopf zeigt ein zufälliges Tierbild und liest den Namen vor. Für Kinder, die mit wenig Text arbeiten.</p><p class="src">${L("lernsachen.blog: Vibe-Coding, kann ich das auch?","https://lernsachen.blog/2026/01/23/vibe-coding-was-ist-das-und-kann-ich-das-auch/")}</p></div>
+<div class="card"><h3>Selbstregulation</h3><p>Kleine Apps, die beim Einschätzen der eigenen Stimmung oder beim Einhalten von Pausen helfen.</p><p class="src">${L("lernsachen.blog","https://lernsachen.blog/2026/01/23/vibe-coding-was-ist-das-und-kann-ich-das-auch/")}</p></div>
+<div class="card"><h3>Vorlesen und Kontrast</h3><p>Bestehendes Material mit Vorlesefunktion, grosser Schrift und kontrastreichem Design neu bauen.</p></div>
+<div class="card"><h3>Tagesplan mit Symbolen</h3><p>Ein visueller Tagesablauf zum Abhaken, mit Symbolen und Vorlesefunktion.</p></div>
+</div>
+${P("Barrierearm machen", `Überarbeite diese App so, dass sie barrierearm ist: sehr grosse Schrift, hoher Kontrast, alle Texte können per Knopf vorgelesen werden (Sprachausgabe des Browsers), grosse Bedienelemente, keine zeitlichen Begrenzungen, keine blinkenden Elemente. Erkläre mir, was du geändert hast.`)}
+
+<h2>Grösser denken</h2>
+<div class="grid">
+<div class="card"><h3>Gruppen-Generator</h3><p>Klassenliste einfügen, Gruppen nach Regeln bilden lassen. Läuft nur lokal, ohne Speicherung.</p></div>
+<div class="card"><h3>Tabellen auswerten</h3><p>Eine Umfrage als Tabelle hochladen und Diagramme daraus erstellen lassen.</p></div>
+<div class="card"><h3>Programm für den Computer</h3><p>Kleine Helfer, zum Beispiel ein Skript, das Dateien eines Ordners einheitlich umbenennt.</p></div>
+<div class="card"><h3>Mehr Ideen</h3><p>Eine Sammlung mit zehn Schulprojekten samt Prompts und vielen weiteren Ideen.</p><p class="src">${L("bildungssprache.net","https://bildungssprache.net/vibe-coding-schule-studium/")}</p></div>
+</div>
+`}]},
+
+{ n:"5", name:"Rastplatz", title:"Code verstehen", pages:[
+{ id:"code", title:"Code verstehen", html:`
+<p class="kicker">5 · Rastplatz</p>
+<h1>Code verstehen</h1>
+<p class="core">Ihr müsst nicht programmieren können. Aber ihr könnt die KI fragen, was sie gebaut hat. Genau das unterscheidet Vibe Coding von verantwortungsvollem Bauen.</p>
+
+${INFO("Kennt ihr aus dem Informatikunterricht: PRIMM", `<p>PRIMM ist ein Unterrichtsmodell aus der Informatikdidaktik, entwickelt von Sue Sentance. Lernende schreiben nicht sofort selbst, sondern nähern sich fremdem Code in fünf Schritten. Genau so könnt ihr mit KI-Code umgehen:</p>
+<div class="tablewrap"><table>
+<tr><th>Schritt</th><th>Im Informatikunterricht</th><th>Mit eurem KI-Code</th></tr>
+<tr><td><strong>Predict</strong></td><td>Vorhersagen, was ein Programm tut</td><td>Vermutung notieren, was eine Stelle bewirkt</td></tr>
+<tr><td><strong>Run</strong></td><td>Ausführen und vergleichen</td><td>App testen: Stimmt die Vermutung?</td></tr>
+<tr><td><strong>Investigate</strong></td><td>Den Code genau untersuchen</td><td>Die KI erklären lassen, Zeile für Zeile</td></tr>
+<tr><td><strong>Modify</strong></td><td>Den Code gezielt verändern</td><td>Eine Stelle selbst ändern, etwa einen Text oder eine Farbe</td></tr>
+<tr><td><strong>Make</strong></td><td>Eigenes Programm schreiben</td><td>Mit neuem Verständnis eine eigene Idee bauen</td></tr>
+</table></div>`)}
+
+<div class="box">
+<h3>Auftrag im Tandem</h3>
+<ol>
+<li><strong>Predict:</strong> Öffnet die Code-Ansicht eurer App. Sucht eine Stelle aus und vermutet, was sie macht.</li>
+<li><strong>Run und Investigate:</strong> Prüft eure Vermutung mit dem ersten Prompt.</li>
+<li><strong>Modify:</strong> Ändert selbst einen Text oder eine Farbe direkt im Code und schaut, was passiert.</li>
+<li>Sucht zum Schluss mit dem dritten Prompt nach Risiken.</li>
+</ol>
+</div>
+${P("Vorhersagen, dann erklären lassen", `Ich vermute, dass dieser Teil des Codes [eure Vermutung] macht: [Stelle beschreiben oder kopieren]. Stimmt das? Erkläre mir Zeile für Zeile, was hier passiert.`)}
+${P("Wie ist meine App aufgebaut?", `Erkläre mir den Code dieser App in höchstens 8 Sätzen, so dass ich es ohne Programmierkenntnisse verstehe: Welche Teile gibt es, und wie spielen sie zusammen? Zeige mir, wo im Code meine Inhalte stehen, damit ich sie selbst ändern könnte.`)}
+${P("Wo sind Risiken?", `Prüfe diesen Code wie eine kritische Fachperson: Wo werden Daten gespeichert und wer kann sie sehen? Werden externe Dienste oder Dateien geladen? Welche drei Stellen sind am fehleranfälligsten? Ordne jeden Punkt als hoch, mittel oder niedrig ein.`)}
+<div class="note"><p><strong>Merke:</strong> Wer nachfragt, was der Code tut, versteht deutlich mehr als wer einfach übernimmt. <mark>Die Art der Nutzung entscheidet über den Lerneffekt</mark>, auch bei Lernenden.</p></div>
+`},
+{ id:"teilen", title:"Teilen und Versionieren", sub:"5.1", html:`
+<p class="kicker">5 · Rastplatz</p>
+<h1>5.1 Teilen und Versionieren</h1>
+<p class="core">Ein Tool nützt erst, wenn es gesichert ist und bei anderen ankommt. Dafür gibt es einfache Wege und einen professionellen: GitHub.</p>
+
+<h2>Drei einfache Wege</h2>
+<div class="tablewrap"><table>
+<tr><th>Weg</th><th>So geht's</th><th>Gut für</th><th>Achtung</th></tr>
+<tr><td><strong>Teilen-Link des Werkzeugs</strong></td><td>Die meisten Werkzeuge bieten «Teilen» an und erzeugen einen Link.</td><td>Schnell zeigen</td><td>Je nach Werkzeug braucht man zum Öffnen ein Konto. Teils sehen alle mit dem Link auch Daten. Der Link verschwindet mit dem Konto.</td></tr>
+<tr><td><strong>HTML-Datei</strong></td><td>Code kopieren, als Datei mit Endung .html speichern, weitergeben.</td><td>Unabhängig sein, offline arbeiten</td><td>Läuft in jedem Browser ohne Konto. Ein Schritt mehr für euch.</td></tr>
+<tr><td><strong>Eigener Link mit QR-Code</strong></td><td>Die HTML-Datei bei einem Dienst wie ${L("LernAppIt","https://www.lernapp.it/")} hochladen.</td><td>Lernende</td><td>Kein Konto für Lernende, QR-Code scannen genügt. Datenschutz des Dienstes prüfen.</td></tr>
+</table></div>
+${MORE("Schritt für Schritt: Code als HTML-Datei speichern", `
+<ol>
+<li>In der Code-Ansicht des Werkzeugs den gesamten Code kopieren.</li>
+<li>Einen einfachen Texteditor öffnen (Windows: Editor, Mac: TextEdit im Modus «Reiner Text»).</li>
+<li>Code einfügen und speichern als <code>meine-app.html</code>.</li>
+<li>Doppelklick auf die Datei: Sie öffnet sich im Browser.</li>
+</ol>
+`)}
+
+<h2>Der professionelle Weg: GitHub</h2>
+<p>GitHub ist die weltweit verbreitetste Plattform, auf der Code gespeichert, versioniert und geteilt wird. Auch viele Lehrpersonen legen ihre Tools dort ab.</p>
+<div class="grid">
+<div class="card"><h3>Versionen</h3><p>Jede gespeicherte Änderung (ein «Commit») bekommt eine kurze Beschreibung. Man sieht jederzeit, was sich wann geändert hat, und kann zu einer früheren Version zurück.</p></div>
+<div class="card"><h3>Teilen</h3><p>Ein Projekt («Repository») kann öffentlich oder privat sein. Andere können den Code ansehen, herunterladen und für sich weiterentwickeln.</p></div>
+<div class="card"><h3>Kommentieren</h3><p>Eine Beschreibungsdatei erklärt, wofür das Tool ist und wie man es nutzt. Im Code selbst helfen Kommentare, damit andere ihn verstehen.</p></div>
+<div class="card"><h3>Veröffentlichen</h3><p>Mit GitHub Pages wird aus einer HTML-Datei kostenlos eine Webseite mit eigener Adresse, ohne Konto für die Lernenden.</p></div>
+</div>
+${P("Code für andere verständlich machen", `Füge in diesen Code kurze Kommentare auf Deutsch ein, damit eine Lehrperson ohne Programmierkenntnisse versteht, welcher Teil was macht und wo sie Inhalte ändern kann. Ändere sonst nichts am Code.`)}
+${P("Beschreibung für GitHub", `Schreibe eine kurze Beschreibung (README) für dieses Tool: Wofür ist es, für welche Stufe, wie benutzt man es, wie passt man die Inhalte an, wer hat es erstellt, und dass es mit KI-Unterstützung entstanden ist.`)}
+${INFO("Kennt ihr aus dem Informatikunterricht: Versionieren", `<p>Programme entstehen in Versionen. Wer Zwischenstände sichert und beschreibt, kann Fehler zurückverfolgen und gemeinsam an einem Projekt arbeiten. In MakeCode oder Scratch speichern Lernende ihre Projekte ebenfalls in Versionen, GitHub macht dasselbe für grössere Projekte.</p>`)}
+
+<h2>Bereit für Lernende?</h2>
+${CHECKS([
+"Die App braucht kein Konto und kein Login.",
+"Es werden keine Namen oder anderen Personendaten eingegeben oder gespeichert.",
+"Die App schickt keine Eingaben der Lernenden an eine KI oder andere Dienste.",
+"Inhalte sind fachlich geprüft.",
+"Die App läuft auf den Geräten der Klasse und im Schul-WLAN.",
+"KI-erzeugte Inhalte sind gekennzeichnet.",
+"Die Datei ist an einem Ort gesichert, auf den auch das Schulhaus Zugriff hat."
+])}
+${P("App bereit machen für Lernende", `Prüfe diese App, bevor ich sie mit Schülerinnen und Schülern einsetze: Werden irgendwo Daten gespeichert oder an andere Dienste geschickt? Werden externe Dateien oder Skripte geladen? Funktioniert sie offline? Passe sie so an, dass sie ohne Internetverbindung und ohne Speicherung von Daten funktioniert, und erkläre mir, was du geändert hast.`)}
+`}]},
+
+{ n:"6", name:"Wegweiser", title:"PICTS-Perspektive", pages:[
+{ id:"picts", title:"PICTS-Perspektive", html:`
+<p class="kicker">6 · Wegweiser</p>
+<h1>PICTS-Perspektive</h1>
+<p class="core">Vibe Coding ist stark für Unterrichtsmaterial und Spielereien. Heikel wird es, sobald Personendaten, Bewertung oder Verantwortung für andere ins Spiel kommen.</p>
+
+<div class="box">
+<h3>Gruppenpuzzle</h3>
+<ol>
+<li>Jede Gruppe übernimmt einen Fall.</li>
+<li>Was ist das eigentliche Problem? Was rätst du als PICTS? Welche Regel bräuchte die Schule?</li>
+<li>Erst danach die möglichen Fragen und Lösungen aufklappen und vergleichen.</li>
+<li>Bringt <strong>eine Regel</strong> für eine schulinterne Handreichung ins Plenum.</li>
+</ol>
+</div>
+
+<div class="card case"><div class="letter">A</div><h3>Das Hauptstädte-Quiz</h3><p>Eine Kollegin in der 5. Klasse hat mit Gemini ein Quiz zu den Hauptstädten Europas gebaut. Die Klasse übt seit zwei Wochen damit. Heute meldet ein Kind: «Bei der Schweiz steht Zürich.» Die Kollegin ist verunsichert und fragt dich, ob sie solchen Apps überhaupt noch trauen kann.</p>
+${MORE("Mögliche Fragen", `<ul><li>Woher kamen die Inhalte: von der Lehrperson oder von der KI?</li><li>Wer hat die Inhalte vor dem Einsatz geprüft?</li><li>Wie lassen sich Fehler künftig schnell korrigieren?</li></ul>`)}
+${MORE("Mögliche Lösungsszenarien", `<ul><li>Inhalte immer selbst mitgeben statt erfinden lassen, oder sie vor dem Einsatz Zeile für Zeile prüfen.</li><li>Im Team ein Vier-Augen-Prinzip vereinbaren, bevor ein Tool in die Klasse geht.</li><li>Den Fehler zum Lernanlass machen: Die Klasse sucht weitere Fehler und lernt dabei, KI-Inhalte kritisch zu prüfen.</li></ul>`)}
+</div>
+
+<div class="card case" style="margin-top:16px"><div class="letter">B</div><h3>Der Lesepass</h3><p>Ein Lehrer in der 2. Klasse hat einen digitalen Lesepass gebaut. Die Kinder tippen am Tablet ihren Vornamen und die gelesenen Minuten ein. Zwei Kolleginnen wollen ihn auch nutzen. Er fragt dich, ob er ihn einfach weitergeben kann.</p>
+${MORE("Mögliche Fragen", `<ul><li>Wo werden Vornamen und Leseminuten gespeichert, und wer sieht sie, auch auf geteilten Tablets?</li><li>Braucht es den Namen überhaupt?</li><li>Wer hilft den Kolleginnen, wenn etwas nicht funktioniert?</li></ul>`)}
+${MORE("Mögliche Lösungsszenarien", `<ul><li>Den Lesepass ohne Namen umbauen: Jedes Kind hat ein Symbol, die Daten bleiben nur auf dem Gerät, am Ende wird ausgedruckt.</li><li>Als HTML-Datei mit kurzer Anleitung weitergeben, statt über einen Link aus dem privaten Konto.</li></ul>`)}
+</div>
+
+<div class="card case" style="margin-top:16px"><div class="letter">C</div><h3>Die Abgabe in Medien und Informatik</h3><p>In der 1. Oberstufe sollten die Lernenden in Scratch ein Spiel programmieren. Ein Schüler gibt ein beeindruckendes Browser-Spiel ab. Auf Nachfrage sagt er offen, er habe es mit einer KI gebaut. Die Lehrerin fragt dich, wie sie das bewerten soll.</p>
+${MORE("Mögliche Fragen", `<ul><li>Was war das Lernziel: ein fertiges Spiel oder das Verstehen von Schleifen, Bedingungen und Variablen?</li><li>Kann der Schüler erklären, wie sein Spiel funktioniert?</li><li>Was war im Auftrag erlaubt, und war das klar kommuniziert?</li></ul>`)}
+${MORE("Mögliche Lösungsszenarien", `<ul><li>Den Schüler das Spiel mit PRIMM erklären lassen: Vorhersagen, Untersuchen, eine Stelle selbst verändern.</li><li>Künftig im Auftrag festhalten, ob und wie KI genutzt werden darf, und den Prozess mitbewerten, zum Beispiel mit einem Bauplan.</li></ul>`)}
+</div>
+
+<div class="card case" style="margin-top:16px"><div class="letter">D</div><h3>Nach der Weiterbildung</h3><p>Nach einer internen Weiterbildung haben viele im Kollegium Lernspiele gebaut. Im gemeinsamen Teams-Ordner liegen nach drei Wochen 23 HTML-Dateien, viele ohne Beschreibung. Eine neue Kollegin fragt dich, welche sie davon verwenden darf.</p>
+${MORE("Mögliche Fragen", `<ul><li>Welche Tools sind geprüft, und von wem?</li><li>Wie findet man sich in der Sammlung zurecht?</li><li>Wer ist für welches Tool Ansprechperson?</li></ul>`)}
+${MORE("Mögliche Lösungsszenarien", `<ul><li>Eine einfache Ordnung einführen: Dateiname mit Fach, Stufe und Autorin, dazu eine kurze Beschreibung.</li><li>Ein Ampelsystem: geprüft, in Erprobung, ungeprüft. Geprüft heisst: Inhalte kontrolliert und Checkliste «Bereit für Lernende» erfüllt.</li></ul>`)}
+</div>
+
+<div class="card case" style="margin-top:16px"><div class="letter">E</div><h3>Der Link funktioniert nicht mehr</h3><p>Im ganzen Zyklus 1 wird eine Anlaut-App genutzt, geteilt über einen Link aus dem privaten Konto einer Kollegin. Sie hat die Schule im Sommer verlassen und ihr Konto aufgeräumt. Am ersten Schultag funktioniert der Link nicht mehr.</p>
+${MORE("Mögliche Fragen", `<ul><li>Wem gehört ein Tool, das mit einem privaten Konto gebaut wurde?</li><li>Hat jemand die App gesichert?</li><li>Wer ist zuständig, wenn ein beliebtes Tool ausfällt?</li></ul>`)}
+${MORE("Mögliche Lösungsszenarien", `<ul><li>Tools, die mehrere Klassen nutzen, immer als HTML-Datei in einer Ablage der Schule oder auf GitHub sichern.</li><li>Pro Tool eine verantwortliche Person bestimmen und sie im Tool selbst nennen.</li><li>Wenn möglich mit Schulkonten statt privaten Konten bauen.</li></ul>`)}
+</div>
+
+<div class="note" style="margin-top:28px"><p><strong>Merke:</strong> Die Rolle der PICTS verschiebt sich <mark>vom Tool-Support zur Qualitätsberatung</mark>. Gefragt sind weniger Programmierkenntnisse als klare Kriterien und der Mut, nachzufragen.</p></div>
+`}]},
+
+{ n:"7", name:"Heimweg", title:"Transfer", pages:[
+{ id:"transfer", title:"Transfer", html:`
+<p class="kicker">7 · Heimweg</p>
+<h1>Transfer</h1>
+<p class="core">Was nehmt ihr mit in euer Schulhaus?</p>
+<div class="box">
+<h3>Mein nächster Schritt</h3>
+<p>Notiert für euch auf einer Karte:</p>
+<ul>
+<li><strong>Was</strong> probiere ich als Nächstes aus?</li>
+<li><strong>Mit wem</strong> im Schulhaus?</li>
+<li><strong>Bis wann?</strong></li>
+</ul>
+</div>
+
+<h2>Weiterlernen</h2>
+<div class="grid">
+<div class="card"><h3>Hauke Pölert</h3><p>${L("Mit KI und Vibe Coding interaktive Lernmaterialien erstellen","https://unterrichten.digital/2026/07/13/ki-vibe-coding-schule-unterricht/")}. Praxisnah, mit Schritt-für-Schritt-Anleitung.</p></div>
+<div class="card"><h3>lernsachen.blog</h3><p>${L("Vibe-Coding: Was ist das und kann ich das auch?","https://lernsachen.blog/2026/01/23/vibe-coding-was-ist-das-und-kann-ich-das-auch/")} Mit Fokus auf Diklusion.</p></div>
+<div class="card"><h3>Medienimpulse</h3><p>${L("Wallner/Pecher (2026): Vibe Coding, Schooltools-Beispiele","https://journals.univie.ac.at/index.php/mp/article/view/10495/10685")}. Wissenschaftlicher Beitrag.</p></div>
+<div class="card"><h3>Simon Willison</h3><p>${L("Not all AI-assisted programming is vibe coding","https://simonwillison.net/2025/Mar/19/vibe-coding/")}. Die Begriffsschärfung, auf Englisch.</p></div>
+</div>
+
+${MORE("Quellen", `
+<ul>
+<li>Karpathy, A. (2.2.2025): ${L("Post auf X zu «vibe coding»","https://x.com/karpathy/status/1886192184808149383")}.</li>
+<li>Willison, S. (2025): Not all AI-assisted programming is vibe coding.</li>
+<li>METR (2025): Studie zur Produktivität erfahrener Entwickler mit KI-Werkzeugen.</li>
+<li>Veracode (2025): Bericht zur Sicherheit von KI-generiertem Code.</li>
+<li>Sentance, S.: PRIMM, ein Ansatz für den Programmierunterricht.</li>
+<li>Pölert, H. (2026): unterrichten.digital.</li>
+<li>Wallner/Pecher (2026): Medienimpulse 64(2).</li>
+<li>Angaben zu Werkzeugen und Kosten: Stand Oktober 2026. Angebote ändern sich schnell.</li>
+</ul>
+`)}
+<p style="margin-top:28px"><button class="btn ghost" data-goid="impressum">Impressum</button></p>
+`}]}
+];
+
+const IMPRESSUM = { id:"impressum", title:"Impressum", html:`
+<p class="kicker">Impressum</p>
+<h1>Impressum</h1>
+<h2>Konzept und Inhalt</h2>
+<p class="person"><strong>Sabrina Meier</strong><br>Dozentin Medien und Informatik<br>Co-Leiterin Fachstelle Schule und Digitalität<br>Pädagogische Hochschule Thurgau</p>
+<h2>Kontext</h2>
+<p>Lernmodul für das PICTS Aufbaumodul «Künstliche Intelligenz in der Schule», Halbtag 4: Vibe Coding und kreatives Arbeiten mit KI.</p>
+<h2>Lizenz</h2>
+<p>Dieses Lernmodul steht unter der Lizenz ${L("Creative Commons BY-NC-SA 4.0","https://creativecommons.org/licenses/by-nc-sa/4.0/deed.de")}: Ihr dürft es teilen und anpassen, mit Namensnennung, nicht kommerziell und unter gleichen Bedingungen.</p>
+<h2>Entstehung</h2>
+<p>Erstellt im Oktober 2026, mit Unterstützung von KI.</p>
+<h2>Hinweise</h2>
+<ul>
+<li>Angaben zu Werkzeugen, Kosten und Altersgrenzen entsprechen dem Stand bei der Erstellung und können sich ändern.</li>
+<li>Externe Links führen zu Angeboten Dritter. Für deren Inhalte sind die jeweiligen Anbieter verantwortlich.</li>
+</ul>
+`};
+
+/* ================= LOGIK ================= */
+const $ = s => document.querySelector(s);
+const PAGES = [];
+STAGES.forEach((s,si)=>s.pages.forEach(p=>PAGES.push(Object.assign({stage:si},p))));
+let cur = 0, showImp = false;
+
+function renderNav(){
+  $("#stages").innerHTML = STAGES.map((s,si)=>{
+    const first = PAGES.findIndex(p=>p.stage===si);
+    const subs = s.pages.filter(p=>p.sub);
+    let h = `<li class="stage"><button class="stagebtn" data-i="${first}" aria-current="${!showImp && cur===first}"><span class="n">${s.n}</span><span class="t">${esc(s.name)}<small>${esc(s.title)}</small></span></button>`;
+    if(subs.length){
+      h += `<ul class="subs">` + subs.map(p=>{
+        const i = PAGES.findIndex(x=>x.id===p.id);
+        return `<li><button class="subbtn" data-i="${i}" aria-current="${!showImp && i===cur}">${p.sub} ${esc(p.title)}</button></li>`;
+      }).join("") + `</ul>`;
+    }
+    return h + `</li>`;
+  }).join("");
+  $("#stages").querySelectorAll("[data-i]").forEach(b=>b.addEventListener("click",()=>go(+b.dataset.i)));
+}
+function render(){
+  let html, crumb;
+  if(showImp){ html = IMPRESSUM.html; crumb = "Impressum"; }
+  else{
+    const p = PAGES[cur], st = STAGES[p.stage];
+    html = p.html; crumb = p.stage===0 ? "Basislager · Start" : `${st.n} · ${st.name} · ${p.sub? p.sub+" "+p.title : st.title}`;
+  }
+  const prev = PAGES[cur-1], next = PAGES[cur+1];
+  $("#main").innerHTML = `<div class="page">${html}
+  <div class="pager">
+    <div>${showImp?`<button class="btn ghost" data-go="${cur}">‹ Zurück</button>`:(prev?`<button class="btn ghost" data-go="${cur-1}">‹ ${esc(prev.title)}</button>`:"")}</div>
+    <div>${!showImp && next?`<button class="btn" data-go="${cur+1}">${esc(next.title)} ›</button>`:""}</div>
+  </div></div>`;
+  $("#crumb").textContent = crumb;
+  document.title = crumb + " | Halbtag 4 | PICTS Aufbaumodul";
+  $("#prevTop").disabled = !showImp && !prev; $("#nextTop").disabled = showImp || !next;
+  $("#main").querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>go(+b.dataset.go)));
+  $("#main").querySelectorAll("[data-goid]").forEach(b=>b.addEventListener("click",()=>goId(b.dataset.goid)));
+  $("#main").querySelectorAll(".copy").forEach(b=>b.addEventListener("click",async()=>{
+    const pre=b.parentElement.querySelector("pre");
+    try{ await navigator.clipboard.writeText(pre.textContent); b.textContent="Kopiert"; }
+    catch(e){ const r=document.createRange(); r.selectNodeContents(pre); const s=getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent="Markiert"; }
+    setTimeout(()=>b.textContent="Kopieren",1600);
+  }));
+  if($("#timer")) initTimer();
+  renderNav();
+}
+function setHash(id){ try{ history.replaceState(null,"","#"+id); }catch(e){} }
+function go(i){
+  if(i<0||i>=PAGES.length) return;
+  showImp=false; cur=i; setHash(PAGES[i].id);
+  stopTimer(); $("#nav").classList.remove("open");
+  render(); window.scrollTo(0,0); $("#main").focus({preventScroll:true});
+}
+function goId(id){
+  if(id==="impressum"){ showImp=true; setHash("impressum"); stopTimer(); $("#nav").classList.remove("open"); render(); window.scrollTo(0,0); return; }
+  const i = PAGES.findIndex(p=>p.id===id); if(i>=0) go(i);
+}
+
+/* Timer */
+let tTotal=90, tLeft=90, tInt=null, actx=null;
+function fmt(s){ const m=Math.floor(s/60), r=s%60; return m+":"+String(r).padStart(2,"0"); }
+function tDraw(){
+  const el=$("#timer"); if(!el) return;
+  $("#tDisp").textContent=fmt(tLeft);
+  $("#tBar").style.width=(tTotal? tLeft/tTotal*100 : 0)+"%";
+  el.classList.toggle("low", tLeft<=10 && tLeft>0);
+  el.classList.toggle("done", tLeft===0);
+  $("#tStart").textContent = tInt ? "Pause" : (tLeft===tTotal ? "Start" : (tLeft===0 ? "Nochmals" : "Weiter"));
+}
+function beep(){
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    [0,0.25,0.5].forEach((d,i)=>{ const o=actx.createOscillator(), g=actx.createGain(); o.type="sine"; o.frequency.value=[660,660,880][i]; g.gain.setValueAtTime(0.0001,actx.currentTime+d); g.gain.exponentialRampToValueAtTime(0.3,actx.currentTime+d+0.02); g.gain.exponentialRampToValueAtTime(0.0001,actx.currentTime+d+0.2); o.connect(g).connect(actx.destination); o.start(actx.currentTime+d); o.stop(actx.currentTime+d+0.22); });
+  }catch(e){}
+}
+function stopTimer(){ if(tInt){ clearInterval(tInt); tInt=null; } }
+function readSet(){
+  const m=Math.max(0,Math.min(30,parseInt($("#tMin").value)||0)), s=Math.max(0,Math.min(59,parseInt($("#tSec").value)||0));
+  tTotal = Math.max(5, m*60+s);
+}
+function tStartPause(){
+  if(tInt){ stopTimer(); tDraw(); return; }
+  if(tLeft===0) tLeft=tTotal;
+  try{ actx = actx || new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==="suspended") actx.resume(); }catch(e){}
+  tInt=setInterval(()=>{ tLeft=Math.max(0,tLeft-1); if(tLeft===0){ stopTimer(); beep(); } tDraw(); },1000);
+  tDraw();
+}
+function initTimer(){
+  $("#tMin").value=Math.floor(tTotal/60); $("#tSec").value=tTotal%60;
+  $("#tStart").addEventListener("click",tStartPause);
+  $("#tReset").addEventListener("click",()=>{ stopTimer(); tLeft=tTotal; tDraw(); });
+  ["#tMin","#tSec"].forEach(s=>$(s).addEventListener("change",()=>{ readSet(); if(!tInt){ tLeft=tTotal; } tDraw(); }));
+  tDraw();
+}
+
+/* Steuerung */
+$("#prevTop").addEventListener("click",()=>showImp?go(cur):go(cur-1));
+$("#nextTop").addEventListener("click",()=>go(cur+1));
+$("#impBtn").addEventListener("click",()=>goId("impressum"));
+$("#menuBtn").addEventListener("click",()=>{
+  if(matchMedia("(max-width:900px)").matches) $("#nav").classList.toggle("open");
+  else $("#shell").classList.toggle("collapsed");
+});
+$("#openAll").addEventListener("click",()=>{
+  const ds=[...document.querySelectorAll("#main details")];
+  const anyClosed = ds.some(d=>!d.open);
+  ds.forEach(d=>d.open=anyClosed);
+});
+document.addEventListener("keydown",e=>{
+  const t=e.target.tagName;
+  if(t==="INPUT"||t==="TEXTAREA"||e.metaKey||e.ctrlKey||e.altKey) return;
+  if(e.key==="ArrowRight") go(cur+1);
+  else if(e.key==="ArrowLeft") showImp?go(cur):go(cur-1);
+  else if(e.key==="Escape") $("#nav").classList.remove("open");
+});
+
+const h = location.hash.slice(1);
+if(h==="impressum"){ showImp=true; }
+else { const i=PAGES.findIndex(p=>p.id===h); cur = i>0 ? i : 0; }
+render();
+</script>
+</body>
+</html>
