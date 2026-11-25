@@ -31,8 +31,9 @@ mark{background:var(--lime);color:var(--black);padding:0 .15em;border-radius:3px
 code{font-family:var(--mono);font-size:.85em;background:var(--grey);padding:.08em .35em;border-radius:5px}
 
 /* Layout */
-.shell{display:grid;grid-template-columns:330px 1fr;min-height:100vh}
-.shell.collapsed{grid-template-columns:0 1fr}
+.shell{display:grid;grid-template-columns:330px minmax(0,1fr);min-height:100vh}
+.shell>*{min-width:0}
+.shell.collapsed{grid-template-columns:0 minmax(0,1fr)}
 .shell.collapsed aside.nav{visibility:hidden}
 aside.nav{position:sticky;top:env(safe-area-inset-top, 0px);height:calc(100vh - env(safe-area-inset-top, 0px));overflow-y:auto;background:var(--black);color:var(--white);padding:28px 18px 28px;display:flex;flex-direction:column}
 .brand{font-family:var(--head);font-weight:600;font-size:15px;color:#BDBDB5;margin:0 0 4px 10px}
@@ -107,6 +108,15 @@ th{font-family:var(--head);font-weight:800;font-size:17px;border-bottom:2px soli
 .card p:last-child{margin-bottom:0}
 .tag{display:inline-block;font-family:var(--head);font-weight:600;font-size:13.5px;border:1px solid var(--black);border-radius:99px;padding:1px 9px;margin:6px 6px 0 0;color:var(--black)}
 .src{font-size:16px}
+.mode{display:inline-block;font-family:var(--head);font-weight:700;font-size:14px;letter-spacing:.02em;border-radius:99px;padding:3px 12px;margin:26px 0 0}
+.mode.now{background:var(--lime);color:var(--black)}
+.mode.read{background:var(--white);color:var(--black);border:1px dashed var(--black)}
+.mode+h2{margin-top:8px}
+.dbfilters{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 16px}
+.dbf{font-family:var(--head);font-weight:600;font-size:15px;border:1px solid var(--black);border-radius:99px;padding:5px 14px;background:var(--white);color:var(--black);cursor:pointer}
+.dbf[aria-pressed="true"]{background:var(--black);color:var(--lime)}
+.qs li{margin-bottom:8px}
+.qs small{display:block;color:#5a5a55;font-size:15px}
 
 .steps{list-style:none;padding:0;counter-reset:s;max-width:none}
 .steps li{counter-increment:s;display:grid;grid-template-columns:52px 1fr;gap:14px;align-items:start;border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin:10px 0}
@@ -190,7 +200,8 @@ th{font-family:var(--head);font-weight:800;font-size:17px;border-bottom:2px soli
 .person strong{font-family:var(--head);font-size:22px}
 
 @media (max-width:900px){
-  .shell,.shell.collapsed{grid-template-columns:1fr}
+  .shell,.shell.collapsed{grid-template-columns:minmax(0,1fr)}
+  .grid{grid-template-columns:minmax(0,1fr)}
   aside.nav{position:fixed;inset:0 auto 0 0;width:min(340px,88vw);z-index:30;transform:translateX(-102%);transition:transform .25s;height:100%;padding-top:calc(env(safe-area-inset-top, 0px) + 24px)}
   aside.nav.open{transform:none;box-shadow:0 0 0 100vmax rgba(0,0,0,.45);visibility:visible}
   .shell.collapsed aside.nav{visibility:visible}
@@ -233,6 +244,14 @@ const L = (text, url) => `<a href="${url}" target="_blank" rel="noopener">${text
 /* ================= INHALT ================= */
 const INFO = (title, html) => `<div class="info"><p class="it">${title}</p>${html}</div>`;
 
+
+const NOW = `<p class="mode now">Heute im Kurs</p>`;
+const READ = `<p class="mode read">Zum Nachlesen</p>`;
+function DB(filters, items){
+  const fb = `<div class="dbfilters" role="group" aria-label="Filtern"><button type="button" class="dbf" data-f="alle" aria-pressed="true">Alle</button>${filters.map(([k,l])=>`<button type="button" class="dbf" data-f="${k}" aria-pressed="false">${l}</button>`).join("")}</div>`;
+  const cards = items.map(i=>`<div class="card" data-t="${i.t}"><h3>${i.h}</h3><p>${i.p}</p><p class="src">${i.src}</p>${(i.tags||[]).map(x=>`<span class="tag">${x}</span>`).join("")}</div>`).join("");
+  return fb + `<div class="grid">${cards}</div>`;
+}
 const STAGES = [
 { n:"0", name:"Basislager", title:"Start", pages:[
 { id:"basislager", title:"Start", html:`
@@ -247,11 +266,11 @@ const STAGES = [
 
 <h2>Ziele</h2>
 <ul>
-<li>Ihr könnt erklären, was Vibe Coding ist, woher der Begriff kommt und wo seine Grenzen liegen.</li>
-<li>Ihr habt selbst eine kleine App mit KI gebaut und wisst, wie ihr sie sichern und teilen könnt.</li>
-<li>Ihr erkennt Parallelen zwischen Vibe Coding und dem Informatikunterricht.</li>
-<li>Ihr habt kreative KI-Werkzeuge ausprobiert oder Ideen für weitere Projekte gesammelt.</li>
-<li>Ihr könnt als PICTS beurteilen, wann ein KI-gebautes Tool im Unterricht sinnvoll ist und wann nicht.</li>
+<li>Ihr kennt Herkunft und Bedeutung von Vibe Coding und könnt seine Chancen und Grenzen einschätzen.</li>
+<li>Ihr baut im Tandem eine eigene kleine App mit KI, sichert sie und teilt sie.</li>
+<li>Ihr hinterfragt KI-Code mit Methoden aus dem Informatikunterricht.</li>
+<li>Ihr erprobt kreative KI-Werkzeuge oder entwickelt eine zweite App-Idee weiter.</li>
+<li>Ihr beurteilt als PICTS, wann ein selbst gebautes Tool im Unterricht sinnvoll ist und wann nicht.</li>
 </ul>
 
 <h2>Die Expedition</h2>
@@ -259,20 +278,22 @@ const STAGES = [
 <li><b><span>1</span>Warm-up</b><em>Practice-Runde</em></li>
 <li><b><span>2</span>Kompass</b><em>Was ist Vibe Coding?</em></li>
 <li><b><span>3</span>Erster Gipfel</b><em>Von der Idee zum Produkt: Projektstart, Bauen, Zeigt her!</em></li>
-<li><b><span>4</span>Abzweigung</b><em>Weiterdenken: Kreativ-Labor oder Ideenbörse</em></li>
-<li><b><span>5</span>Rastplatz</b><em>Code verstehen · Teilen und Versionieren</em></li>
+<li><b><span>4</span>Rastplatz</b><em>Code verstehen · Teilen und Versionieren</em></li>
+<li><b><span>5</span>Abzweigung</b><em>Weiterdenken: Kreativ-Labor oder Ideenbörse</em></li>
 <li><b><span>6</span>Wegweiser</b><em>PICTS-Perspektive</em></li>
 <li><b><span>7</span>Heimweg</b><em>Transfer</em></li>
 </ol>
+<p>Dieses Lernmodul führt euch durch den Nachmittag und bleibt euch danach erhalten. Ihr dürft es weitergeben und anpassen, mit Namensnennung und nicht kommerziell (Lizenz CC BY-NC-SA 4.0, mehr im Impressum).</p>
+<p>Nicht alles wird im Kurs durchgearbeitet. ${NOW.replace('<p ','<span ').replace('</p>','</span>')} zeigt, was wir gemeinsam machen. ${READ.replace('<p ','<span ').replace('</p>','</span>')} ist für später.</p>
 <p class="keys">Mit den Pfeiltasten links und rechts blättert ihr weiter. Bereiche mit Plus lassen sich aufklappen.</p>
 
 <h2>Vorbereitung</h2>
 <div class="box">
 <h3>Bitte vor dem Kurs erledigen</h3>
 <ol>
-<li><strong>Beispiel mitbringen:</strong> Etwas, das ihr schon mit KI gemacht habt: ein Tool, ein Spiel, ein Bild, ein Song, ein Text. Auch ein Versuch, der nicht geklappt hat, ist willkommen. Wer noch nichts gemacht hat, bringt eine Frage oder eine Idee mit.</li>
-<li><strong>Konto bereit haben:</strong> Ein Google-Konto, mit dem ihr euch unter gemini.google.com anmelden könnt. Bitte vorher einmal einloggen. Alternativ ein Konto bei claude.ai.</li>
-<li><strong>Laptop mitbringen.</strong> Tablets gehen, sind beim Bauen aber umständlicher.</li>
+<li><strong>Laptop und Konto</strong> bei gemini.google.com oder claude.ai. Bitte vorher einmal einloggen und testen.</li>
+<li><strong>Nutzungslimit vor dem Kurs nicht aufbrauchen.</strong> Das Guthaben erneuert sich alle fünf Stunden, teils gilt zusätzlich ein Wochenlimit. Den Stand seht ihr unter ${L("gemini.google.com/usage","https://gemini.google.com/usage")} oder bei Claude unter Einstellungen &gt; Nutzung.</li>
+<li><strong>Falls vorhanden: eigenes KI-Beispiel</strong> (Tool, Spiel, Bild, Song, Text). Auch ein Versuch, der nicht geklappt hat, ist willkommen.</li>
 </ol>
 </div>
 `}]},
@@ -284,8 +305,8 @@ const STAGES = [
 <p class="core">Ihr bringt schon Erfahrungen mit. Wir beginnen mit dem, was in diesem Raum bereits da ist.</p>
 
 <div class="box">
-<h3>Auftrag im Plenum</h3>
-<p>Wer mag, zeigt sein mitgebrachtes Beispiel. Pro Person höchstens 90 Sekunden:</p>
+<h3>Was habt ihr schon ausprobiert?</h3>
+<p>Zeigt euch zu zweit eure mitgebrachten Beispiele, je 2 Minuten. Danach zeigen zwei, drei Personen ihr Beispiel im Plenum. Wer zusammen war, baut nachher im Tandem.</p>
 <ul>
 <li>Was habe ich gemacht, und mit welchem Werkzeug?</li>
 <li>Was hat mich überrascht, positiv oder negativ?</li>
@@ -300,7 +321,7 @@ const STAGES = [
     <button class="go" id="tStart">Start</button>
     <button id="tReset">Zurücksetzen</button>
   </div>
-  <div class="set"><label for="tMin">Minuten</label><input id="tMin" type="number" min="0" max="30" value="1"><label for="tSec">Sekunden</label><input id="tSec" type="number" min="0" max="59" step="5" value="30"></div>
+  <div class="set"><label for="tMin">Minuten</label><input id="tMin" type="number" min="0" max="30" value="2"><label for="tSec">Sekunden</label><input id="tSec" type="number" min="0" max="59" step="5" value="0"></div>
 </div>
 `}]},
 
@@ -329,6 +350,7 @@ ${MORE("Was im Post weiter steht: der Kontext", `
 <p>Rückblickend nannte Karpathy den Post einen Gedanken unter der Dusche, den er nebenbei abgeschickt habe. Er habe aber zum richtigen Moment einen Namen für etwas gefunden, das viele gleichzeitig spürten.</p>
 `)}
 
+${READ}
 <h2>Vom Post zum Wort des Jahres</h2>
 <div class="tablewrap"><table>
 <tr><th>Wann</th><th>Was</th></tr>
@@ -340,6 +362,7 @@ ${MORE("Was im Post weiter steht: der Kontext", `
 
 <div class="note"><p><strong>Merke:</strong> Entscheidend ist nicht, ob eine KI den Code schreibt, sondern <mark>ob ein Mensch den Code prüft und versteht</mark>. Wer nur das Ergebnis anschaut, betreibt Vibe Coding. Wer liest, testet und nachfragt, programmiert KI-gestützt.</p></div>
 
+${NOW}
 <h2>Schätzfrage</h2>
 <div class="box"><h3>Handzeichen</h3><p>Erfahrene Profis bearbeiten echte Aufgaben in ihren eigenen Software-Projekten, einmal mit und einmal ohne KI. Wie viel schneller sind sie mit KI?</p><p><strong>langsamer · gleich schnell · 20 % schneller · 50 % schneller · doppelt so schnell</strong></p></div>
 ${MORE("Auflösung: die METR-Studie (Juli 2025)", `
@@ -347,11 +370,13 @@ ${MORE("Auflösung: die METR-Studie (Juli 2025)", `
 <p>Die Studie betrifft Profis in grossen, vertrauten Projekten, nicht Lehrpersonen, die ein Quiz bauen. Sie zeigt aber: Das Gefühl, mit KI produktiv zu sein, kann täuschen.</p>
 `)}
 
+${NOW}
 <h2>Chancen und Grenzen</h2>
+<p>Jedes Tandem liest ein Paar und fasst es in einem Satz zusammen.</p>
 <div class="pairs">
  <div class="pair">
   <div class="pc"><div class="ic">+</div><div><h3>Massgeschneidert</h3><p>Material, das genau zur eigenen Klasse passt.</p><p class="ex">Ein Wortschatz-Memory zum aktuellen Lesebuchkapitel, gebaut in 20 Minuten.</p></div></div>
-  <div class="pg"><div class="ic">⚡</div><div><h3>Fachliche Fehler</h3><p>Die KI erfindet auch Falsches, und es sieht überzeugend aus.</p><p class="ex">Im Memory steht eine falsche Übersetzung. Niemand merkt es, die Kinder lernen sie.</p></div></div>
+  <div class="pg"><div class="ic">⚡</div><div><h3>Sieht fertig aus, ist es aber nicht</h3><p>Die App wirkt fehlerfrei, auch wenn im Detail etwas nicht stimmt.</p><p class="ex">Das Quiz akzeptiert «St.Gallen», aber nicht «St. Gallen». Ein Kind antwortet richtig und sieht ein rotes Kreuz.</p></div></div>
  </div>
  <div class="pair">
   <div class="pc"><div class="ic">+</div><div><h3>Barrieren abbauen</h3><p>Lösungen für Bedürfnisse, für die es nichts zu kaufen gibt.</p><p class="ex">Eine Lese-App mit grosser Schrift, hohem Kontrast und Vorlesefunktion für ein Kind mit Sehbeeinträchtigung.</p></div></div>
@@ -366,6 +391,16 @@ ${MORE("Auflösung: die METR-Studie (Juli 2025)", `
   <div class="pg"><div class="ic">⚡</div><div><h3>Daten und Sicherheit</h3><p>KI-Code hat häufig Sicherheitslücken.</p><p class="ex">Bei einer App-Bau-Plattform hatten 170 von 1645 Apps eine Lücke, über die Personendaten offen lagen.</p></div></div>
  </div>
 </div>
+${MORE("Typische Fehler in KI-gebauten Apps", `
+<ul>
+<li><strong>Logik:</strong> Antworten werden zu streng geprüft, Punkte falsch gezählt, der Zufall wiederholt immer dieselben Aufgaben.</li>
+<li><strong>Nicht schweizerisch:</strong> ß statt ss, deutsche Begriffe, falsche Schulstufen oder Fächer.</li>
+<li><strong>Unpassendes Niveau:</strong> Wörter oder Aufgaben, die für die Stufe viel zu schwer oder zu leicht sind.</li>
+<li><strong>«Behoben», obwohl nicht behoben:</strong> Die KI meldet eine Korrektur, der Fehler ist aber noch da.</li>
+<li><strong>Versteckte Verbindungen:</strong> Die App lädt Schriften oder Skripte aus dem Netz und läuft offline nicht.</li>
+<li><strong>Lokalwissen:</strong> Bei Gemeinden, Lehrmitteln oder kantonalen Regeln liegt die KI noch oft daneben.</li>
+</ul>
+`)}
 `}]},
 
 { n:"3", name:"Erster Gipfel", title:"Von der Idee zum Produkt", pages:[
@@ -400,24 +435,41 @@ ${MORE("Auflösung: die METR-Studie (Juli 2025)", `
 </div>
 </div>
 
+${READ}
+<h2>Derselbe Kreis, für den Unterricht ausbuchstabiert</h2>
+<p>imedias, die Beratungsstelle der PH FHNW, arbeitet in der VisibleVibe-Community mit sechs Schritten. Sie passen auf den Kreis und ergänzen ihn um zwei Fragen, die bei Lern-Apps besonders wichtig sind.</p>
+<div class="tablewrap"><table>
+<tr><th>Kreis</th><th>VisibleVibe</th><th>Worum es geht</th></tr>
+<tr><td>Verstehen</td><td><strong>Sense</strong></td><td>Eine Knacknuss im eigenen Unterricht finden.</td></tr>
+<tr><td rowspan="2">Idee</td><td><strong>Frame</strong></td><td>Entscheiden, was die Technik übernimmt und was die Lernenden selbst denken.</td></tr>
+<tr><td><strong>Ideate</strong></td><td>Ablauf und Ansichten skizzieren.</td></tr>
+<tr><td>Prototyp</td><td><strong>Build</strong></td><td>Den Bauauftrag an die KI geben.</td></tr>
+<tr><td>Testen</td><td><strong>Test &amp; Reflect</strong></td><td>In der Klasse ausprobieren und anschauen, was die Lernenden damit tun.</td></tr>
+<tr><td>Und wieder von vorn</td><td><strong>Grow</strong></td><td>Eine begründete Änderung vornehmen und sie teilen.</td></tr>
+</table></div>
+<p class="src">${L("VisibleVibe: Die Methode in sechs Schritten","https://www.visiblevibe.ch/learn/visiblevibe-methode")}</p>
+
+${NOW}
 <h2>Einblick in ein eigenes Vibe-Coding-Projekt</h2>
 <p>Ein Jeopardy-Spiel für den Unterricht, gebaut mit Gemini. Die wichtigste Erkenntnis vorweg: <mark>Wer gut beschreibt, was er möchte, bekommt schon im ersten Wurf ein starkes Ergebnis.</mark> Kleine Projekte brauchen dann nur wenige Runden.</p>
-<div class="card" style="max-width:640px"><h3>Jeopardy Vibe Coding</h3><p>Das Spiel und sein Code liegen auf GitHub. Wie Code dort gesichert und geteilt wird, schauen wir uns in 5.1 an.</p><p><a class="btn" style="display:inline-block;text-decoration:none" href="https://github.com/SabrinaAlexM/jeopardy-vibecoding/tree/main" target="_blank" rel="noopener">Zum Projekt auf GitHub</a></p></div>
+<div class="card" style="max-width:640px"><h3>Jeopardy Vibe Coding</h3><p>Das Spiel und sein Code liegen auf GitHub. Wie Code dort gesichert und geteilt wird, schauen wir uns in 4.1 an.</p><p><a class="btn" style="display:inline-block;text-decoration:none" href="https://github.com/SabrinaAlexM/jeopardy-vibecoding/tree/main" target="_blank" rel="noopener">Zum Projekt auf GitHub</a></p></div>
 `},
 { id:"projektstart", title:"Projektstart", sub:"3.1", html:`
 <p class="kicker">3 · Erster Gipfel</p>
 <h1>3.1 Projektstart</h1>
 <p class="core">Zu zweit wählt ihr ein Werkzeug und eine Idee und füllt den Bauplan aus. Ein guter Bauplan spart euch später viele Runden.</p>
 
-<h2>Werkzeug wählen</h2>
+<h2>Werkzeug</h2>
+<p>Heute arbeiten wir mit <strong>Gemini Canvas</strong>. Wer Claude schon nutzt, darf dabei bleiben. Die anderen Werkzeuge sind zum Nachlesen.</p>
 <div class="tablewrap"><table>
 <tr><th>Werkzeug</th><th>Kosten</th><th>Gut zu wissen</th></tr>
 <tr><td><strong>Gemini Canvas</strong><span class="badge">empfohlen</span></td><td>Gratis mit Google-Konto</td><td>Live-Vorschau der App. Unter dem Eingabefeld «Canvas» wählen. Mit demselben Konto auch Bilder und Musik. Die Gratislimiten schwanken je nach Auslastung.</td></tr>
 <tr><td><strong>Claude</strong> (Artefakte)</td><td>Gratis mit Konto</td><td>Sehr gute Code-Qualität. Im Gratisplan ist die Anzahl Nachrichten begrenzt, das kann beim Verbessern knapp werden.</td></tr>
 <tr><td><strong>Google AI Studio</strong></td><td>Gratis mit Google-Konto</td><td>Eigener Bereich zum App-Bauen, etwas technischer als Canvas.</td></tr>
-<tr><td><strong>ChatGPT</strong></td><td>Gratis mit Konto</td><td>Canvas gibt es seit Mai 2026 nicht mehr, Code-Blöcke zeigen aber eine Vorschau für HTML. Im Gratisplan mit Werbung, und die Daten werden standardmässig fürs Training genutzt (in den Einstellungen abschaltbar).</td></tr>
+<tr><td><strong>ChatGPT</strong></td><td>Gratis mit Konto</td><td>Code-Blöcke zeigen eine Vorschau für HTML. Im Gratisplan mit Werbung, und die Daten werden standardmässig fürs Training genutzt (in den Einstellungen abschaltbar).</td></tr>
 <tr><td><strong>Lovable</strong></td><td>Gratis: 5 Credits pro Tag</td><td>Baut ganze Web-Apps mit Datenbank. Die Gratis-Credits reichen für 2 bis 4 Schritte, für heute zu wenig. Lehrpersonen erhalten 50 % Rabatt auf Pro.</td></tr>
 </table></div>
+${MORE("Nach dem Kurs: drei Wege zum eigenen Lernwerkzeug", `<div class="tablewrap"><table><tr><th>Weg</th><th>Beispiele</th><th>Passt, wenn …</th></tr><tr><td><strong>Chat, eine HTML-Datei</strong></td><td>Gemini, Claude, ChatGPT, Copilot</td><td>ihr eine einfache Idee schnell ausprobieren wollt. So arbeiten wir heute.</td></tr><tr><td><strong>Plattform im Browser</strong></td><td>Lovable, Google AI Studio, Bolt, v0</td><td>das Tool mehrere Teile oder eine Datenbank braucht.</td></tr><tr><td><strong>Eigener Computer</strong></td><td>Claude Code, Codex, Cursor</td><td>ihr volle Kontrolle wollt. Auf Schulgeräten oft gesperrt.</td></tr></table></div><p class="src">Nach ${L("VisibleVibe: Toolbox zusammenstellen","https://www.visiblevibe.ch/learn/toolbox-zusammenstellen")}</p>`)}
 
 <h2>Rollen im Tandem: Driver und Navigator</h2>
 <div class="grid">
@@ -428,7 +480,7 @@ ${MORE("Auflösung: die METR-Studie (Juli 2025)", `
 ${INFO("Kennt ihr aus dem Informatikunterricht: Pair Programming", `<p>Driver und Navigator sind die Rollen aus dem Pair Programming. Zwei Personen arbeiten an einem Programm, eine schreibt, eine denkt mit und kontrolliert, regelmässig wird gewechselt. Im Informatikunterricht wird diese Arbeitsform gezielt eingesetzt, weil Lernende dabei ihr Denken aussprechen und sich gegenseitig korrigieren. Beim Vibe Coding funktioniert sie genauso.</p>`)}
 
 <h2>Idee wählen</h2>
-<p>Nehmt eine der Ideen oder setzt eine eigene um. Wichtig: Es soll etwas sein, das ihr wirklich brauchen könnt.</p>
+<p>Nehmt eine der Ideen oder setzt eine eigene um. Wichtig: <mark>Baut ein Werkzeug, kein Arbeitsblatt.</mark> Es soll sich nächste Woche mit neuen Inhalten wieder brauchen lassen, zum Beispiel ein Memory, in das ihr jede Woche eine neue Wortliste kopiert.</p>
 <div class="grid">
 <div class="card"><h3>Wortschatz-Memory</h3><p>Bild-Wort-Paare für DaZ, Fremdsprachen oder Fachbegriffe.</p><span class="tag">Zyklus 1–2</span></div>
 <div class="card"><h3>Quiz mit Begründung</h3><p>Nach jeder Antwort eine kurze Erklärung, am Schluss eine Auswertung.</p><span class="tag">alle Zyklen</span></div>
@@ -437,9 +489,10 @@ ${INFO("Kennt ihr aus dem Informatikunterricht: Pair Programming", `<p>Driver un
 <div class="card"><h3>Zeitstrahl-Puzzle</h3><p>Ereignisse in die richtige Reihenfolge bringen.</p><span class="tag">Zyklus 2–3</span></div>
 <div class="card"><h3>Geschichten-Würfel</h3><p>Die App würfelt Figur, Ort und Problem, die Klasse erzählt daraus eine Geschichte.</p><p class="src">Aus der Praxis: ${L("Felix Haas: Wurfgeschichten","https://www.linkedin.com/posts/felixhaas8352_deutschunterricht-schreibfaemrderung-unterrichtsideen-share-7530929149469691904-RiE5/")}</p><span class="tag">Zyklus 1–3</span></div>
 </div>
+<div class="box"><h3>Taugt eure Idee? Fünf Fragen</h3><ul><li>Ist es uns wichtig?</li><li>Können wir es im Unterricht sehen und beeinflussen?</li><li>Ist es klein genug, um es heute auszuprobieren?</li><li>Sind wir offen, die Idee unterwegs zu ändern?</li><li>Können wir es tatsächlich testen, mit Geräten und Klasse?</li></ul><p class="src">Nach ${L("VisibleVibe: Stell dir zuerst diese fünf Fragen","https://www.visiblevibe.ch/learn/app-idee-fuenf-fragen")}</p></div>
 
 <h2>Bauplan ausfüllen</h2>
-<p>Füllt die Lücken in eckigen Klammern aus. Dann ist der Bauplan gleichzeitig euer erster Prompt.</p>
+<p>Füllt die Lücken in eckigen Klammern aus. Dann ist der Bauplan gleichzeitig euer erster Prompt. Wer mag, skizziert die App vorher kurz auf Papier: Welche Ansichten gibt es, was sehen die Lernenden zuerst? Das ist kein Muss, hilft aber, den Bauplan klarer zu formulieren.</p>
 ${P("Bauplan als erster Prompt", `
 Baue eine App als einzelne HTML-Datei ohne externe Abhängigkeiten.
 
@@ -452,6 +505,8 @@ SO FUNKTIONIERT ES:
 
 INHALTE:
 [eigene Inhalte einfügen oder: Erfinde passende Inhalte, die ich danach prüfe]
+
+INHALTE AUSTAUSCHBAR: Ich will die Inhalte später selbst ändern können, z.B. eine neue Wortliste in ein Textfeld kopieren.
 
 DESIGN: [z.B. ruhig, grosse Schrift, hoher Kontrast, kindgerecht]
 
@@ -474,7 +529,7 @@ ${INFO("Kennt ihr aus dem Informatikunterricht: Problem zerlegen", `<p>Ein Baupl
 <li><div><strong>Eine Änderung pro Runde.</strong> Nicht fünf Wünsche auf einmal. Nach jeder Änderung wieder testen.</div></li>
 <li><div><strong>Zuerst Funktion, dann Design.</strong> Erst muss es laufen, dann darf es schön werden.</div></li>
 <li><div><strong>Inhalte prüfen.</strong> Stimmen Fakten, Rechtschreibung und Lösungen?</div></li>
-<li><div><strong>Sichern.</strong> Wenn eine Version gut ist, den Code als Datei sichern. Mehr dazu in 5.1.</div></li>
+<li><div><strong>Sichern.</strong> Wenn eine Version gut ist, den Code als Datei sichern. Mehr dazu in 4.1.</div></li>
 </ol>
 
 <h2>Prompts zum Verbessern</h2>
@@ -518,133 +573,11 @@ ${MORE("Die KI dreht im Kreis? Das hilft", `
 <li><strong>Was würdet ihr als Nächstes bauen?</strong></li>
 </ul>
 </div>
-<div class="note"><p><strong>Grösser denken:</strong> Vibe Coding geht weit über eine kleine Web-App hinaus. Mit denselben Werkzeugen entstehen auch Programme für den Computer, geteilte Artefakte, Code für den Calliope mini, Auswertungen von Tabellen oder kleine Helfer für den Schulalltag.</p></div>
 `}]},
 
-{ n:"4", name:"Abzweigung", title:"Weiterdenken", pages:[
-{ id:"weiterdenken", title:"Weiterdenken", html:`
-<p class="kicker">4 · Abzweigung</p>
-<h1>Weiterdenken</h1>
-<p class="core">Nach dem ersten Gipfel wählt ihr euren Weg: kreativ experimentieren oder mit Vibe Coding weiterbauen.</p>
-<div class="grid">
-<div class="card"><h3>Weg A · Kreativ-Labor</h3><p>Bild, Musik, Video und verrückte Experimente. Für alle, die kreative KI-Werkzeuge noch nicht kennen oder ihre App mit eigenen Medien aufpeppen wollen.</p><p><button class="btn" data-goid="kreativ">Zum Kreativ-Labor</button></p></div>
-<div class="card"><h3>Weg B · Ideenbörse Vibe Coding</h3><p>Weiterbauen oder ein zweites, grösseres Projekt anpacken: Escape Room, Calliope, Barrierefreiheit und mehr.</p><p><button class="btn" data-goid="ideen">Zur Ideenbörse</button></p></div>
-</div>
-<div class="note"><p><strong>Tipp:</strong> Ihr könnt auch beides verbinden. Ein Lernspiel aus der Ideenbörse wird mit einem eigenen Song oder eigenen Bildern aus dem Kreativ-Labor erst richtig eures.</p></div>
-`},
-{ id:"kreativ", title:"Kreativ-Labor", sub:"4.1", html:`
-<p class="kicker">4 · Abzweigung · Weg A</p>
-<h1>4.1 Kreativ-Labor</h1>
-<p class="core">Jetzt wird experimentiert: Songs, Bilder, Videos, Stimmen. Probiert aus, was ihr noch nicht kennt, und denkt dabei an eure Klasse.</p>
-
-<h2>Werkzeuge und Kosten</h2>
-<div class="tablewrap"><table>
-<tr><th>Medium</th><th>Werkzeug</th><th>Kosten</th><th>Achtung</th></tr>
-<tr><td>Bild</td><td>Gemini</td><td>Gratis mit Google-Konto</td><td>Mit privatem Konto erst ab 18 Jahren.</td></tr>
-<tr><td>Musik</td><td>Gemini (Lyria)</td><td>Ohne Abo</td><td>Ab 18 Jahren. Gratis nur Clips bis 30 Sekunden.</td></tr>
-<tr><td>Musik</td><td>Suno</td><td>Gratis rund 10 Songs pro Tag</td><td>Nur private, nicht kommerzielle Nutzung. Neue Gratiskonten (seit September 2026) können kaum noch herunterladen: Songs anhören und per Link teilen geht, in eine App einbauen nicht.</td></tr>
-<tr><td>Musik</td><td>Udio</td><td>Gratis mit wenigen Credits</td><td>Downloads sind abgeschaltet. Songs lassen sich nur in Udio anhören.</td></tr>
-<tr><td>Video</td><td>Video-KI in Gemini, Canva und anderen</td><td>Meist nur wenige Gratis-Versuche</td><td>Angebote, Grenzen und Altersvorgaben ändern sich laufend. Vor Ort prüfen.</td></tr>
-<tr><td>Text</td><td>Gemini, Claude oder andere Chatbots</td><td>Gratis</td><td>Inhalte immer selbst prüfen.</td></tr>
-</table></div>
-
-<h2>Experimente mit Schulbezug</h2>
-<div class="grid">
-<div class="card"><h3>Lernsong</h3><p>Ein Song, der Grammatik oder Fachbegriffe erklärt und dabei gleich vormacht, zum Beispiel ein Reggaeton zum Present Continuous.</p><p class="src">${L("Freinhofer: Songs auf Knopfdruck","https://freinhofer.substack.com/p/suno")}</p><span class="tag">Musik</span></div>
-<div class="card"><h3>Song mit Lückentext</h3><p>Aus dem Lernsong einen Lückentext machen: hören, mitlesen, ergänzen.</p><p class="src">${L("schulKI-Blog: Songs nach eigenen Vorstellungen","https://schulki.de/blog/neu-erschaffe-fertige-songs-nach-deinen-vorstellungen")}</p><span class="tag">Musik</span><span class="tag">Text</span></div>
-<div class="card"><h3>Alte Lieder neu vertonen</h3><p>Ein Gedicht oder Lied aus dem 19. Jahrhundert in einen heutigen Stil übertragen und vergleichen.</p><p class="src">${L("nmz badblog: Suno im Musikunterricht","https://blogs.nmz.de/badblog/2024/04/15/suno-ai-im-musikunterricht-ein-konzept-um-lieder-des-19-jahrhunderts-besser-zu-verstehen/")}</p><span class="tag">Musik</span></div>
-<div class="card"><h3>Musikvideo mit der Klasse</h3><p>Eine 2. Klasse schrieb den Text, KI machte Lied und Bilder: ein Musikvideo zu Sankt Martin mit dem Klassenmaskottchen.</p><p class="src">${L("KMS Bildung: Musikvideos mit KI","https://www.kms-bildung.de/2025/11/09/musikvideos-mit-ki-im-unterricht-ein-praxisversuch/")}</p><span class="tag">Musik</span><span class="tag">Bild</span><span class="tag">Video</span></div>
-<div class="card"><h3>Song-Station mit Reflexion</h3><p>Kinder erstellen in einer Lernstation einen Song und denken danach darüber nach, wie es sich anfühlt, wenn eine Maschine komponiert.</p><p class="src">${L("Lea Schulz: Station 13","https://praxis.leaschulz.com/2025/03/06/station-13-gs/")}</p><span class="tag">Musik</span></div>
-<div class="card"><h3>Escape-Room-Finale</h3><p>Ein KI-Song als Abschluss, der die gelösten Rätsel nochmals aufgreift.</p><p class="src">${L("Begabungslotse: Escape Games im Unterricht","https://www.begabungslotse.de/hybrider-lernraum/talente-foerdern/escape-games-im-unterricht")}</p><span class="tag">Musik</span></div>
-<div class="card"><h3>Echt oder KI?</h3><p>Echte Fotos und KI-Bilder mischen. Wer erkennt, was echt ist, und woran? Ein starker Einstieg in Medienkompetenz.</p><span class="tag">Bild</span><span class="tag">Medienbildung</span></div>
-<div class="card"><h3>Klassenmaskottchen</h3><p>Ein Maskottchen erfinden, in verschiedenen Situationen zeichnen lassen und ihm einen eigenen Song geben.</p><span class="tag">Bild</span><span class="tag">Musik</span></div>
-<div class="card"><h3>Gedicht als Rap, Schlager, Oper</h3><p>Denselben Text in drei Stilen vertonen und vergleichen: Was macht die Musik mit der Bedeutung?</p><span class="tag">Musik</span></div>
-<div class="card"><h3>Hörspiel</h3><p>Eine selbst geschriebene Szene mit Geräuschen und Musikteppich zum Leben erwecken.</p><span class="tag">Musik</span><span class="tag">Text</span></div>
-<div class="card"><h3>Bilderbuch in einem Stil</h3><p>Eine kurze Geschichte mit Bildern in einheitlichem Stil, als interaktive App oder zum Ausdrucken.</p><span class="tag">Bild</span><span class="tag">Text</span></div>
-<div class="card"><h3>Musik direkt im Code</h3><p>Die KI erfindet ein eigenes Notenformat und baut einen Player, der die Melodie im Browser abspielt. Kein Download nötig, die Musik steckt in der App.</p><p class="src">${L("Simon Willison: Scrimshaw Jukebox","https://simonwillison.net/2026/Oct/6/scrimshaw-jukebox/")}</p><span class="tag">Musik</span><span class="tag">Code</span></div>
-<div class="card"><h3>Crazy: Zeitreise-Interview</h3><p>Eine historische Figur «interviewen», Porträt dazu erzeugen, als Radiosendung vertonen. Und dann gemeinsam prüfen: Was davon ist erfunden?</p><span class="tag">Text</span><span class="tag">Bild</span><span class="tag">Musik</span></div>
-</div>
-
-<h2>Prompts zum Start</h2>
-${P("Musik: Lernsong", `Ein fröhlicher Lernsong für Kinder der [Stufe] zum Thema [Thema], Stil [z.B. Pop, Reggaeton, Rap], eingängiger Refrain, klare Aussprache, Text auf Deutsch. Der Text soll diese Begriffe enthalten: [Begriffe].`)}
-${P("Musik: kurzer Jingle für eine App", `Ein kurzer, fröhlicher Jingle für ein Lernspiel für Kinder, Xylophon und leichte Percussion, aufsteigende Melodie, ohne Gesang, etwa 5 Sekunden.`)}
-${P("Musik: direkt im Code", `Komponiere eine kurze, fröhliche Melodie für [Zweck, z.B. den Start unseres Lernspiels]. Entwirf dafür ein einfaches Textformat für Noten und baue eine einzelne HTML-Datei, die die Melodie im Browser abspielt. Zeige die Noten an, damit ich sie selbst verändern kann.`)}
-${P("Bild: einheitlicher Stil", `Erstelle eine Illustration für ein Kinderbuch: [was auf dem Bild zu sehen ist]. Stil: [z.B. weiche Aquarellfarben, freundlich, klare Formen]. Quadratisch, kein Text im Bild. Verwende für alle weiteren Bilder denselben Stil und dieselben Figuren.`)}
-${P("Medien in die eigene App holen", `Füge der App einen Bereich «Eigene Medien» hinzu: Man kann dort eigene Bilder (JPG, PNG) und Klänge (MP3) vom Gerät auswählen, die dann in der App verwendet werden. [Beschreibt, wo die Medien erscheinen sollen.] Die Dateien bleiben auf dem Gerät und werden nirgends hochgeladen.`)}
-
-<div class="warn"><p class="wt">Rechtliches in Kürze</p>
-<ul>
-<li>Keine echten Personen, schon gar keine Kinder, auf KI-Bildern darstellen oder nachbilden. Keine Fotos von Lernenden hochladen.</li>
-<li>KI-Inhalte als solche kennzeichnen, zum Beispiel: «Song erstellt mit Suno».</li>
-<li>Gratisversionen erlauben oft nur private, nicht kommerzielle Nutzung. Im Unterricht vorspielen ist in der Regel möglich, weitergeben oder veröffentlichen genau prüfen.</li>
-<li>Viele Kreativwerkzeuge sind erst ab 13 oder 18 Jahren freigegeben. Lernende dürfen sie oft nicht selbst nutzen.</li>
-</ul></div>
-`},
-{ id:"ideen", title:"Ideenbörse Vibe Coding", sub:"4.2", html:`
-<p class="kicker">4 · Abzweigung · Weg B</p>
-<h1>4.2 Ideenbörse Vibe Coding</h1>
-<p class="core">Weiterbauen oder etwas Neues wagen. Hier sind Ideen aus der Praxis, viele davon mit Erfahrungsberichten von Lehrpersonen.</p>
-
-<h2>Lernspiele und Lernmaterial</h2>
-<div class="grid">
-<div class="card"><h3>Fachwortschatz-Trainer</h3><p>Fachbegriffe üben mit Karten, Zuordnung und Wiederholung.</p><p class="src">${L("Pölert: Vibe Coding im Unterricht","https://unterrichten.digital/2026/07/13/ki-vibe-coding-schule-unterricht/")}</p></div>
-<div class="card"><h3>Geschichts-Adventure</h3><p>Ein Entscheidungsspiel, in dem man historische Situationen durchlebt.</p><p class="src">${L("Pölert: Vibe Coding im Unterricht","https://unterrichten.digital/2026/07/13/ki-vibe-coding-schule-unterricht/")}</p></div>
-<div class="card"><h3>Prüfungsbesprechung zum Selbstlernen</h3><p>Aufgabenkarten mit Musterlösungen, Erklärungen zu typischen Fehlern und Fortschrittsbalken.</p><p class="src">${L("bildungssprache.net: Vibe Coding in Schule und Studium","https://bildungssprache.net/vibe-coding-schule-studium/")}</p></div>
-<div class="card"><h3>Lernapp mit Modulen</h3><p>Flashcards, thematische Quizze und Übungsmodus mit Sofort-Feedback vor einer Prüfung.</p><p class="src">${L("bildungssprache.net","https://bildungssprache.net/vibe-coding-schule-studium/")}</p></div>
-<div class="card"><h3>Sammlung von Schooltools</h3><p>Eine österreichische Plattform sammelt Mini-Tools, die mit Vibe Coding nach Ideen von Lehrpersonen entstanden sind.</p><p class="src">${L("schooltools.at","https://www.schooltools.at/")} · ${L("Wallner/Pecher 2026","https://journals.univie.ac.at/index.php/mp/article/view/10495/10685")}</p></div>
-<div class="card"><h3>Selbstkontrolle und Lernpfade</h3><p>Kleine Web-Apps für Selbstkontrolltests und digitale Lernpfade.</p><p class="src">${L("tibs.at: Vibe Coding verändert Schule","https://tibs.at/news/vibe-coding-veraendert-schule-und-unterricht")}</p></div>
-</div>
-
-<h2>Aus der Praxis</h2>
-<div class="grid">
-<div class="card"><h3>Wurfgeschichten</h3><p>Ein Sekundarlehrer hat für seine Klassen einen digitalen Würfel gebaut: Ein bis sechs Würfel zeigen Bilder am Beamer, dazu auf Wunsch eine Schreibsituation, etwa der letzte Tagebucheintrag eines Schneemanns im Frühling. Über 600 Bilder und 300 Schreibanlässe, einzelne Würfel lassen sich neu werfen, heikle Icons in den Einstellungen ausschalten. Kostenlos, ohne Anmeldung, ohne Werbung.</p><p class="src">${L("Felix Haas auf LinkedIn","https://www.linkedin.com/posts/felixhaas8352_deutschunterricht-schreibfaemrderung-unterrichtsideen-share-7530929149469691904-RiE5/")}</p><span class="tag">Deutsch</span><span class="tag">Zyklus 3</span></div>
-</div>
-<div class="note"><p><strong>Daran sieht man gut:</strong> Die Idee ist alt (Geschichtenwürfel gibt es seit Jahren), neu ist, dass eine Lehrperson sie genau auf ihre Klasse zuschneiden kann: eigene Bilder, eigene Schreibanlässe, eigene Regeln.</p></div>
-
-<h2>Spiele</h2>
-<p>Seit Herbst 2026 gelingen mit KI auch Spiele, die wirklich Spass machen. Der Entwickler Simon Willison stellte fest, dass eine schlichte Anweisung erstaunlich viel bewirkt: «Sorg dafür, dass es Spass macht».</p>
-${P("Spiel mit Spassfaktor", `Baue als einzelne HTML-Datei ohne externe Abhängigkeiten ein Spiel für [Stufe] zum Thema [Thema]. Spielidee: [kurz beschreiben]. Denk gründlich darüber nach, wie das Spiel Spass macht und gleichzeitig [Lernziel] übt. Keine Speicherung von Daten.`)}
-<p class="src">${L("Simon Willison: The October inflection point for vibe game development","https://simonwillison.net/2026/Oct/28/vibe-game-development/")}</p>
-
-<h2>Escape Room</h2>
-<div class="grid">
-<div class="card"><h3>Digitaler Escape Room</h3><p>Mehrere Rätsel hintereinander, jedes ergibt einen Code für das nächste Schloss. Mit Geschichte, Zeitlimit und Abschlussszene.</p><p class="src">${L("Begabungslotse: Escape Games im Unterricht","https://www.begabungslotse.de/hybrider-lernraum/talente-foerdern/escape-games-im-unterricht")}</p></div>
-<div class="card"><h3>Hybrid-Escape</h3><p>Die App ist das digitale Zahlenschloss, die Hinweise liegen auf Papier im Schulzimmer versteckt.</p></div>
-<div class="card"><h3>Escape Room über KI</h3><p>Rätsel, in denen die Lernenden Fehler in KI-Texten finden müssen, um weiterzukommen.</p><p class="src">${L("IQES: Escape-Spiel zu ChatGPT","https://www.iqesonline.net/bildung-digital/ki-unterricht-lernen/unterrichtsbeispiele/escape-spiel/")}</p></div>
-</div>
-${P("Escape Room als Bauplan", `Baue einen digitalen Escape Room als einzelne HTML-Datei ohne externe Abhängigkeiten für [Stufe] zum Thema [Thema]. Geschichte: [kurze Ausgangslage]. Es gibt [Anzahl] Rätsel nacheinander. Jedes Rätsel ergibt einen Code, der das nächste freischaltet. Rätsel: [Rätsel und Lösungen einfügen oder: Schlage passende Rätsel vor]. Mit Countdown von [Minuten] Minuten, Hinweis-Knopf pro Rätsel und Abschlussszene. Keine Speicherung von Daten.`)}
-
-<h2>Calliope mini</h2>
-<div class="grid">
-<div class="card"><h3>Übersetzen statt abtippen</h3><p>Die KI schreibt ein Programm in MakeCode-JavaScript. In MakeCode auf Blöcke umschalten und jeden Block erklären.</p></div>
-<div class="card"><h3>Erst vorhersagen, dann testen</h3><p>Was macht dieser KI-Code? Vermutung notieren, im Simulator prüfen. Das ist PRIMM, mehr dazu in Kapitel 5.</p></div>
-<div class="card"><h3>Debugging-Detektive</h3><p>Die KI erzeugt Code mit einem eingebauten Fehler. Wer findet ihn zuerst?</p></div>
-<div class="card"><h3>Daten-Dashboard</h3><p>Messwerte des Calliope (Temperatur, Lautstärke) als Tabelle in eine vibegecodete Web-App, die Diagramme zeichnet.</p></div>
-</div>
-${P("Calliope-Programm", `Schreibe ein Programm für den Calliope mini 3 in MakeCode-JavaScript: [Funktion, z.B. Lärmampel: leise grün, mittel gelb, laut rot]. Verwende nur Befehle, die es im MakeCode-Editor für den Calliope mini gibt, nicht die des micro:bit. Erkläre danach jede Zeile so, dass eine 5. Klasse sie versteht.`)}
-<p class="src">Editor: ${L("makecode.calliope.cc","https://makecode.calliope.cc/")} · Material: ${L("Calliope Schulmaterial","https://calliope.cc/schulen/schulmaterial")}. Tipp: KI-Modelle verwechseln gerne Calliope- und micro:bit-Befehle. Immer im Simulator testen.</p>
-
-<h2>Barrierefreiheit und Diklusion</h2>
-<div class="grid">
-<div class="card"><h3>Ein Knopf, eine Reaktion</h3><p>Ein grosser Knopf zeigt ein zufälliges Tierbild und liest den Namen vor. Für Kinder, die mit wenig Text arbeiten.</p><p class="src">${L("lernsachen.blog: Vibe-Coding, kann ich das auch?","https://lernsachen.blog/2026/01/23/vibe-coding-was-ist-das-und-kann-ich-das-auch/")}</p></div>
-<div class="card"><h3>Selbstregulation</h3><p>Kleine Apps, die beim Einschätzen der eigenen Stimmung oder beim Einhalten von Pausen helfen.</p><p class="src">${L("lernsachen.blog","https://lernsachen.blog/2026/01/23/vibe-coding-was-ist-das-und-kann-ich-das-auch/")}</p></div>
-<div class="card"><h3>Vorlesen und Kontrast</h3><p>Bestehendes Material mit Vorlesefunktion, grosser Schrift und kontrastreichem Design neu bauen.</p></div>
-<div class="card"><h3>Tagesplan mit Symbolen</h3><p>Ein visueller Tagesablauf zum Abhaken, mit Symbolen und Vorlesefunktion.</p></div>
-</div>
-${P("Barrierearm machen", `Überarbeite diese App so, dass sie barrierearm ist: sehr grosse Schrift, hoher Kontrast, alle Texte können per Knopf vorgelesen werden (Sprachausgabe des Browsers), grosse Bedienelemente, keine zeitlichen Begrenzungen, keine blinkenden Elemente. Erkläre mir, was du geändert hast.`)}
-
-<h2>Grösser denken</h2>
-<div class="grid">
-<div class="card"><h3>Gruppen-Generator</h3><p>Klassenliste einfügen, Gruppen nach Regeln bilden lassen. Läuft nur lokal, ohne Speicherung.</p></div>
-<div class="card"><h3>Tabellen auswerten</h3><p>Eine Umfrage als Tabelle hochladen und Diagramme daraus erstellen lassen.</p></div>
-<div class="card"><h3>Programm für den Computer</h3><p>Kleine Helfer, zum Beispiel ein Skript, das Dateien eines Ordners einheitlich umbenennt.</p></div>
-<div class="card"><h3>Mehr Ideen</h3><p>Eine Sammlung mit zehn Schulprojekten samt Prompts und vielen weiteren Ideen.</p><p class="src">${L("bildungssprache.net","https://bildungssprache.net/vibe-coding-schule-studium/")}</p></div>
-</div>
-`}]},
-
-{ n:"5", name:"Rastplatz", title:"Code verstehen", pages:[
+{ n:"4", name:"Rastplatz", title:"Code verstehen", pages:[
 { id:"code", title:"Code verstehen", html:`
-<p class="kicker">5 · Rastplatz</p>
+<p class="kicker">4 · Rastplatz</p>
 <h1>Code verstehen</h1>
 <p class="core">Ihr müsst nicht programmieren können. Aber ihr könnt die KI fragen, was sie gebaut hat. Genau das unterscheidet Vibe Coding von verantwortungsvollem Bauen.</p>
 
@@ -658,16 +591,17 @@ ${INFO("Kennt ihr aus dem Informatikunterricht: PRIMM", `<p>PRIMM ist ein Unterr
 <tr><td><strong>Make</strong></td><td>Eigenes Programm schreiben</td><td>Mit neuem Verständnis eine eigene Idee bauen</td></tr>
 </table></div>`)}
 
+${NOW}
 <div class="box">
-<h3>Auftrag im Tandem</h3>
+<h3>Auftrag im Tandem, direkt nach «Zeigt her!»</h3>
 <ol>
 <li><strong>Predict:</strong> Öffnet die Code-Ansicht eurer App. Sucht eine Stelle aus und vermutet, was sie macht.</li>
 <li><strong>Run und Investigate:</strong> Prüft eure Vermutung mit dem ersten Prompt.</li>
-<li><strong>Modify:</strong> Ändert selbst einen Text oder eine Farbe direkt im Code und schaut, was passiert.</li>
-<li>Sucht zum Schluss mit dem dritten Prompt nach Risiken.</li>
+<li><strong>Modify, wenn Zeit bleibt:</strong> Ändert selbst einen Text oder eine Farbe direkt im Code und schaut, was passiert.</li>
 </ol>
 </div>
 ${P("Vorhersagen, dann erklären lassen", `Ich vermute, dass dieser Teil des Codes [eure Vermutung] macht: [Stelle beschreiben oder kopieren]. Stimmt das? Erkläre mir Zeile für Zeile, was hier passiert.`)}
+${READ}
 ${P("Wie ist meine App aufgebaut?", `Erkläre mir den Code dieser App in höchstens 8 Sätzen, so dass ich es ohne Programmierkenntnisse verstehe: Welche Teile gibt es, und wie spielen sie zusammen? Zeige mir, wo im Code meine Inhalte stehen, damit ich sie selbst ändern könnte.`)}
 ${P("Wo sind Risiken?", `Prüfe diesen Code wie eine kritische Fachperson: Wo werden Daten gespeichert und wer kann sie sehen? Werden externe Dienste oder Dateien geladen? Welche drei Stellen sind am fehleranfälligsten? Ordne jeden Punkt als hoch, mittel oder niedrig ein.`)}
 <h2>Wer denkt hier?</h2>
@@ -684,11 +618,22 @@ ${P("Wo sind Risiken?", `Prüfe diesen Code wie eine kritische Fachperson: Wo we
 ${P("Sparring statt Lift", `Erkläre mir den Code nicht. Stelle mir stattdessen drei Fragen dazu, was dieser Teil der App macht, und gib mir nach jeder Antwort eine kurze Rückmeldung.`)}
 <div class="note"><p><strong>Merke:</strong> Wer nachfragt, was der Code tut, versteht deutlich mehr als wer einfach übernimmt. <mark>Die Art der Nutzung entscheidet über den Lerneffekt</mark>, auch bei Lernenden.</p></div>
 `},
-{ id:"teilen", title:"Teilen und Versionieren", sub:"5.1", html:`
-<p class="kicker">5 · Rastplatz</p>
-<h1>5.1 Teilen und Versionieren</h1>
+{ id:"teilen", title:"Teilen und Versionieren", sub:"4.1", html:`
+<p class="kicker">4 · Rastplatz</p>
+<h1>4.1 Teilen und Versionieren</h1>
 <p class="core">Ein Tool nützt erst, wenn es gesichert ist und bei anderen ankommt. Dafür gibt es einfache Wege und einen professionellen: GitHub.</p>
 
+${NOW}
+<div class="box"><h3>Zum Schluss der Abzweigung: App als HTML-Datei sichern</h3>
+<ol>
+<li>In der Code-Ansicht des Werkzeugs den gesamten Code kopieren.</li>
+<li>Einen einfachen Texteditor öffnen (Windows: Editor, Mac: TextEdit im Modus «Reiner Text»).</li>
+<li>Code einfügen und speichern als <code>meine-app.html</code>.</li>
+<li>Doppelklick auf die Datei: Sie öffnet sich im Browser.</li>
+</ol>
+<p>Manche Werkzeuge bieten auch einen Knopf zum Herunterladen. Dann geht es noch schneller.</p></div>
+
+${READ}
 <h2>Drei einfache Wege</h2>
 <div class="tablewrap"><table>
 <tr><th>Weg</th><th>So geht's</th><th>Gut für</th><th>Achtung</th></tr>
@@ -696,26 +641,20 @@ ${P("Sparring statt Lift", `Erkläre mir den Code nicht. Stelle mir stattdessen 
 <tr><td><strong>HTML-Datei</strong></td><td>Code kopieren, als Datei mit Endung .html speichern, weitergeben.</td><td>Unabhängig sein, offline arbeiten</td><td>Läuft in jedem Browser ohne Konto. Ein Schritt mehr für euch.</td></tr>
 <tr><td><strong>Eigener Link mit QR-Code</strong></td><td>Die HTML-Datei bei einem Dienst wie ${L("LernAppIt","https://www.lernapp.it/")} hochladen.</td><td>Lernende</td><td>Kein Konto für Lernende, QR-Code scannen genügt. Datenschutz des Dienstes prüfen.</td></tr>
 </table></div>
-${MORE("Schritt für Schritt: Code als HTML-Datei speichern", `
-<ol>
-<li>In der Code-Ansicht des Werkzeugs den gesamten Code kopieren.</li>
-<li>Einen einfachen Texteditor öffnen (Windows: Editor, Mac: TextEdit im Modus «Reiner Text»).</li>
-<li>Code einfügen und speichern als <code>meine-app.html</code>.</li>
-<li>Doppelklick auf die Datei: Sie öffnet sich im Browser.</li>
-</ol>
-`)}
 
 <h2>Der professionelle Weg: GitHub</h2>
-<p>GitHub ist die weltweit verbreitetste Plattform, auf der Code gespeichert, versioniert und geteilt wird. Auch viele Lehrpersonen legen ihre Tools dort ab.</p>
-<div class="grid">
-<div class="card"><h3>Versionen</h3><p>Jede gespeicherte Änderung (ein «Commit») bekommt eine kurze Beschreibung. Man sieht jederzeit, was sich wann geändert hat, und kann zu einer früheren Version zurück.</p></div>
-<div class="card"><h3>Teilen</h3><p>Ein Projekt («Repository») kann öffentlich oder privat sein. Andere können den Code ansehen, herunterladen und für sich weiterentwickeln.</p></div>
-<div class="card"><h3>Kommentieren</h3><p>Eine Beschreibungsdatei erklärt, wofür das Tool ist und wie man es nutzt. Im Code selbst helfen Kommentare, damit andere ihn verstehen.</p></div>
-<div class="card"><h3>Veröffentlichen</h3><p>Mit GitHub Pages wird aus einer HTML-Datei kostenlos eine Webseite mit eigener Adresse, ohne Konto für die Lernenden.</p></div>
-</div>
+<p>Stellt euch GitHub als Ordner im Netz vor, der sich jede Fassung eurer Dateien merkt. Viele Lehrpersonen legen ihre Tools dort ab, auch das Jeopardy-Spiel von vorhin.</p>
+<ol class="steps">
+<li><div><strong>Konto anlegen.</strong> Auf ${L("github.com","https://github.com/")} gratis registrieren.</div></li>
+<li><div><strong>Ordner anlegen und Datei hochladen.</strong> Einen neuen Ordner erstellen (bei GitHub heisst er «Repository»). Über «Add file» und «Upload files» die HTML-Datei hineinziehen. Jedes Hochladen wird als Fassung gespeichert (ein «Commit»), mit einer kurzen Notiz, was neu ist. Zu jeder früheren Fassung könnt ihr zurück.</div></li>
+<li><div><strong>Als Webseite veröffentlichen.</strong> Die Datei <code>index.html</code> nennen. Unter «Settings» und «Pages» die Veröffentlichung einschalten. Nach kurzer Zeit hat die App eine eigene Adresse, die Lernende ohne Konto öffnen können.</div></li>
+</ol>
+<div class="note"><p><strong>Gut zu wissen:</strong> Eine Datei <strong>README</strong> beschreibt, wofür das Tool ist und wie man es nutzt. GitHub zeigt sie auf der Startseite des Ordners an. Ein öffentlicher Ordner ist für alle sichtbar. Mit einem Gratiskonto funktioniert die Webseite nur bei öffentlichen Ordnern.</p></div>
 ${P("Code für andere verständlich machen", `Füge in diesen Code kurze Kommentare auf Deutsch ein, damit eine Lehrperson ohne Programmierkenntnisse versteht, welcher Teil was macht und wo sie Inhalte ändern kann. Ändere sonst nichts am Code.`)}
 ${P("Beschreibung für GitHub", `Schreibe eine kurze Beschreibung (README) für dieses Tool: Wofür ist es, für welche Stufe, wie benutzt man es, wie passt man die Inhalte an, wer hat es erstellt, und dass es mit KI-Unterstützung entstanden ist.`)}
 ${INFO("Kennt ihr aus dem Informatikunterricht: Versionieren", `<p>Programme entstehen in Versionen. Wer Zwischenstände sichert und beschreibt, kann Fehler zurückverfolgen und gemeinsam an einem Projekt arbeiten. In MakeCode oder Scratch speichern Lernende ihre Projekte ebenfalls in Versionen, GitHub macht dasselbe für grössere Projekte.</p>`)}
+
+<div class="box"><h3>Drei Grundsätze für selbst gebaute Lern-Apps</h3><ol><li><strong>Zum Nutzen der Lernenden:</strong> keine Werbung, keine Überwachung, externe Inhalte bewusst auswählen.</li><li><strong>Kontrolle behalten:</strong> fertig testen, einfach bauen, möglichst wenig Daten und diese lokal halten. Braucht es einen Server, dann zuerst in der Schweiz, dann in Europa.</li><li><strong>Erfahrungen teilen:</strong> festhalten, was funktioniert und wo Risiken liegen.</li></ol><p class="src">Nach dem Entwurf eines Datenschutz-Manifests der VisibleVibe-Community: ${L("Datenschutz und Datensparsamkeit","https://www.visiblevibe.ch/learn/datenschutz-und-datensparsamkeit")}</p></div>
 
 <h2>Bereit für Lernende?</h2>
 ${CHECKS([
@@ -730,6 +669,122 @@ ${CHECKS([
 ${P("App bereit machen für Lernende", `Prüfe diese App, bevor ich sie mit Schülerinnen und Schülern einsetze: Werden irgendwo Daten gespeichert oder an andere Dienste geschickt? Werden externe Dateien oder Skripte geladen? Funktioniert sie offline? Passe sie so an, dass sie ohne Internetverbindung und ohne Speicherung von Daten funktioniert, und erkläre mir, was du geändert hast.`)}
 `}]},
 
+{ n:"5", name:"Abzweigung", title:"Weiterdenken", pages:[
+{ id:"weiterdenken", title:"Weiterdenken", html:`
+<p class="kicker">5 · Abzweigung</p>
+<h1>Weiterdenken</h1>
+<p class="core">Jetzt ist Zeit zum Ausprobieren. Ihr wählt euren Weg: kreativ experimentieren oder mit Vibe Coding weiterbauen.</p>
+<div class="grid">
+<div class="card"><h3>Weg A · Kreativ-Labor</h3><p>Bild, Musik, Video und verrückte Experimente. Für alle, die kreative KI-Werkzeuge noch nicht kennen oder ihre App mit eigenen Medien aufpeppen wollen.</p><p><button class="btn" data-goid="kreativ">Zum Kreativ-Labor</button></p></div>
+<div class="card"><h3>Weg B · Ideenbörse Vibe Coding</h3><p>Weiterbauen oder ein zweites, grösseres Projekt anpacken: Escape Room, Calliope, Barrierefreiheit und mehr.</p><p><button class="btn" data-goid="ideen">Zur Ideenbörse</button></p></div>
+</div>
+<div class="box"><h3>So nutzt ihr die Zeit</h3><ul><li>Nicht lesen, sondern machen: Sucht euch ein Projekt aus «Schon umgesetzt» oder eine Inspirationsfrage aus und probiert es aus.</li><li>Lieber ein Experiment zu Ende bringen als drei anfangen.</li><li>Zum Schluss sichert ihr eure App als HTML-Datei (Anleitung in 4.1).</li></ul></div>
+<div class="note"><p><strong>Tipp:</strong> Ihr könnt auch beides verbinden. Ein Lernspiel aus der Ideenbörse wird mit einem eigenen Song oder eigenen Bildern aus dem Kreativ-Labor erst richtig eures.</p></div>
+`},
+{ id:"kreativ", title:"Kreativ-Labor", sub:"5.1", html:`
+<p class="kicker">5 · Abzweigung · Weg A</p>
+<h1>5.1 Kreativ-Labor</h1>
+<p class="core">Jetzt wird experimentiert: Songs, Bilder, Videos, Stimmen. Probiert aus, was ihr noch nicht kennt, und denkt dabei an eure Klasse.</p>
+
+<h2>Werkzeuge und Kosten</h2>
+<div class="tablewrap"><table>
+<tr><th>Medium</th><th>Werkzeug</th><th>Kosten</th><th>Achtung</th></tr>
+<tr><td>Bild</td><td>Gemini</td><td>Gratis mit Google-Konto</td><td>Mit privatem Konto erst ab 18 Jahren.</td></tr>
+<tr><td>Musik</td><td>Gemini (Lyria)</td><td>Ohne Abo</td><td>Ab 18 Jahren. Gratis nur Clips bis 30 Sekunden.</td></tr>
+<tr><td>Musik</td><td>Suno</td><td>Gratis rund 10 Songs pro Tag</td><td>Nur private, nicht kommerzielle Nutzung. Neue Gratiskonten (seit September 2026) können kaum noch herunterladen: Songs anhören und per Link teilen geht, in eine App einbauen nicht.</td></tr>
+<tr><td>Musik</td><td>Udio</td><td>Gratis mit wenigen Credits</td><td>Downloads sind abgeschaltet. Songs lassen sich nur in Udio anhören.</td></tr>
+<tr><td>Video</td><td>Video-KI in Gemini, Canva und anderen</td><td>Meist nur wenige Gratis-Versuche</td><td>Angebote, Grenzen und Altersvorgaben ändern sich laufend. Vor Ort prüfen.</td></tr>
+<tr><td>Text</td><td>Gemini, Claude oder andere Chatbots</td><td>Gratis</td><td>Inhalte immer selbst prüfen.</td></tr>
+</table></div>
+
+<h2>Schon umgesetzt</h2>
+<p>Projekte, die Lehrpersonen mit Klassen ausprobiert und beschrieben haben.</p>
+${DB([["musik","Musik"],["bild","Bild"],["video","Video"],["code","Code"]],[
+ {t:"musik",h:"Lernsong",p:"Ein Song, der Grammatik oder Fachbegriffe erklärt und dabei gleich vormacht, zum Beispiel ein Reggaeton zum Present Continuous.",src:L("Freinhofer: Songs auf Knopfdruck","https://freinhofer.substack.com/p/suno"),tags:["Musik"]},
+ {t:"musik",h:"Song mit Lückentext",p:"Aus dem Lernsong einen Lückentext machen: hören, mitlesen, ergänzen.",src:L("schulKI-Blog: Songs nach eigenen Vorstellungen","https://schulki.de/blog/neu-erschaffe-fertige-songs-nach-deinen-vorstellungen"),tags:["Musik","Text"]},
+ {t:"musik",h:"Alte Lieder neu vertonen",p:"Ein Gedicht oder Lied aus dem 19. Jahrhundert in einen heutigen Stil übertragen und vergleichen.",src:L("nmz badblog: Suno im Musikunterricht","https://blogs.nmz.de/badblog/2024/04/15/suno-ai-im-musikunterricht-ein-konzept-um-lieder-des-19-jahrhunderts-besser-zu-verstehen/"),tags:["Musik"]},
+ {t:"musik bild video",h:"Musikvideo mit der Klasse",p:"Eine 2. Klasse schrieb den Text, KI machte Lied und Bilder: ein Musikvideo zu Sankt Martin mit dem Klassenmaskottchen.",src:L("KMS Bildung: Musikvideos mit KI","https://www.kms-bildung.de/2025/11/09/musikvideos-mit-ki-im-unterricht-ein-praxisversuch/"),tags:["Musik","Bild","Video"]},
+ {t:"musik",h:"Song-Station mit Reflexion",p:"Kinder erstellen in einer Lernstation einen Song und denken danach darüber nach, wie es sich anfühlt, wenn eine Maschine komponiert.",src:L("Lea Schulz: Station 13","https://praxis.leaschulz.com/2025/03/06/station-13-gs/"),tags:["Musik"]},
+ {t:"musik code",h:"Musik direkt im Code",p:"Die KI erfindet ein eigenes Notenformat und baut einen Player, der die Melodie im Browser abspielt. Kein Download nötig, die Musik steckt in der App.",src:L("Simon Willison: Scrimshaw Jukebox","https://simonwillison.net/2026/Oct/6/scrimshaw-jukebox/"),tags:["Musik","Code"]}
+])}
+
+<h2>Zur Inspiration: Fragen für ein eigenes Projekt</h2>
+<ul class="qs">
+<li>Welcher Text eurer Klasse würde ganz anders wirken, wenn man ihn hört?</li>
+<li>Welche Figur begleitet eure Klasse schon, oder könnte es?</li>
+<li>Welche Geschichte haben die Kinder selbst geschrieben, die man vertonen oder bebildern könnte?</li>
+<li>Wen würdet ihr gern einmal interviewen, und was davon wäre erfunden?</li>
+<li>Was soll am Ende einer Unterrichtseinheit hängen bleiben, als Lied, Bild oder Szene?</li>
+<li>Wo fehlt eurer App noch ein Klang, ein Bild oder eine Stimme?</li>
+</ul>
+
+<h2>Prompts zum Start</h2>
+${P("Musik: Lernsong", `Ein fröhlicher Lernsong für Kinder der [Stufe] zum Thema [Thema], Stil [z.B. Pop, Reggaeton, Rap], eingängiger Refrain, klare Aussprache, Text auf Deutsch. Der Text soll diese Begriffe enthalten: [Begriffe].`)}
+${P("Musik: kurzer Jingle für eine App", `Ein kurzer, fröhlicher Jingle für ein Lernspiel für Kinder, Xylophon und leichte Percussion, aufsteigende Melodie, ohne Gesang, etwa 5 Sekunden.`)}
+${P("Musik: direkt im Code", `Komponiere eine kurze, fröhliche Melodie für [Zweck, z.B. den Start unseres Lernspiels]. Entwirf dafür ein einfaches Textformat für Noten und baue eine einzelne HTML-Datei, die die Melodie im Browser abspielt. Zeige die Noten an, damit ich sie selbst verändern kann.`)}
+${P("Bild: einheitlicher Stil", `Erstelle eine Illustration für ein Kinderbuch: [was auf dem Bild zu sehen ist]. Stil: [z.B. weiche Aquarellfarben, freundlich, klare Formen]. Quadratisch, kein Text im Bild. Verwende für alle weiteren Bilder denselben Stil und dieselben Figuren.`)}
+${P("Medien in die eigene App holen", `Füge der App einen Bereich «Eigene Medien» hinzu: Man kann dort eigene Bilder (JPG, PNG) und Klänge (MP3) vom Gerät auswählen, die dann in der App verwendet werden. [Beschreibt, wo die Medien erscheinen sollen.] Die Dateien bleiben auf dem Gerät und werden nirgends hochgeladen.`)}
+
+<div class="warn"><p class="wt">Warum «Echt oder KI?» nicht mehr funktioniert</p><p>Ratespiele mit echten und KI-Bildern trainieren eine Fähigkeit, die Menschen kaum haben. In einem Online-Experiment von Microsoft mit über 12'500 Teilnehmenden lagen die Antworten in 62 % der Fälle richtig, kaum besser als Raten. Eine Studie von Ende 2025 kam auf 54 %, und Übung half kaum. Ergiebiger ist die Frage: Woher stammt ein Bild, wer hat es veröffentlicht, und ist es gekennzeichnet?</p><p class="src">${L("Microsoft Research: Real or Not Quiz","https://www.microsoft.com/en-us/research/?p=1157417")} · ${L("Pavão (2025): We are not able to identify AI-generated images","https://arxiv.org/abs/2512.22236")}</p></div>
+
+<div class="warn"><p class="wt">Rechtliches in Kürze</p>
+<ul>
+<li>Keine echten Personen, schon gar keine Kinder, auf KI-Bildern darstellen oder nachbilden. Keine Fotos von Lernenden hochladen.</li>
+<li>KI-Inhalte als solche kennzeichnen, zum Beispiel: «Song erstellt mit Suno».</li>
+<li>Gratisversionen erlauben oft nur private, nicht kommerzielle Nutzung. Im Unterricht vorspielen ist in der Regel möglich, weitergeben oder veröffentlichen genau prüfen.</li>
+<li>Viele Kreativwerkzeuge sind erst ab 13 oder 18 Jahren freigegeben. Lernende dürfen sie oft nicht selbst nutzen.</li>
+</ul></div>
+`},
+{ id:"ideen", title:"Ideenbörse Vibe Coding", sub:"5.2", html:`
+<p class="kicker">5 · Abzweigung · Weg B</p>
+<h1>5.2 Ideenbörse Vibe Coding</h1>
+<p class="core">Weiterbauen oder etwas Neues wagen. Zuerst seht ihr Apps, die Lehrpersonen schon gebaut haben. Danach folgen Fragen für eure eigene Idee und Vorlagen für bestimmte Projektarten.</p>
+
+<h2>Schon umgesetzt</h2>
+${DB([["ueben","Üben"],["schreiben","Schreiben"],["spiel","Spiel"],["alltag","Klassenalltag"],["barriere","Barrierefreiheit"]],[
+ {t:"schreiben",h:"Wurfgeschichten",p:"Ein digitaler Würfel für den Beamer: Ein bis sechs Würfel zeigen Bilder, dazu auf Wunsch eine Schreibsituation, etwa der letzte Tagebucheintrag eines Schneemanns im Frühling. Über 600 Bilder und 300 Schreibanlässe, ohne Anmeldung und ohne Werbung.",src:L("Felix Haas auf LinkedIn","https://www.linkedin.com/posts/felixhaas8352_deutschunterricht-schreibfaemrderung-unterrichtsideen-share-7530929149469691904-RiE5/"),tags:["Deutsch","Zyklus 3"]},
+ {t:"spiel",h:"Jeopardy",p:"Ein Quizspiel für die Klasse mit Kategorien und Punkten, gebaut mit Gemini. Das Projekt von vorhin.",src:L("Sabrina Meier auf GitHub","https://github.com/SabrinaAlexM/jeopardy-vibecoding/tree/main"),tags:["alle Fächer"]},
+ {t:"ueben spiel",h:"Fachwortschatz-Trainer und Geschichts-Adventure",p:"Fachbegriffe üben mit Karten und Wiederholung, oder historische Situationen in einem Entscheidungsspiel durchleben.",src:L("Pölert: Vibe Coding im Unterricht","https://unterrichten.digital/2026/07/13/ki-vibe-coding-schule-unterricht/"),tags:["Zyklus 3"]},
+ {t:"ueben",h:"Prüfungsbesprechung zum Selbstlernen",p:"Aufgabenkarten mit Musterlösungen, Erklärungen zu typischen Fehlern und einem Fortschrittsbalken.",src:L("bildungssprache.net","https://bildungssprache.net/vibe-coding-schule-studium/"),tags:["Zyklus 3"]},
+ {t:"ueben",h:"Selbstkontrolle und Lernpfade",p:"Kleine Web-Apps für Selbstkontrolltests und digitale Lernpfade.",src:L("tibs.at: Vibe Coding verändert Schule","https://tibs.at/news/vibe-coding-veraendert-schule-und-unterricht"),tags:["alle Zyklen"]},
+ {t:"alltag",h:"Gruppenzeit",p:"Teilt eine Gruppenarbeit in Phasen: Auftrag verstehen, Rollen verteilen, Ergebnis erstellen, prüfen, Präsentation vorbereiten. Die Klasse sieht Restzeit und aktuelle Phase am Beamer.",src:L("VisibleVibe-Methode","https://www.visiblevibe.ch/learn/visiblevibe-methode"),tags:["alle Zyklen"]},
+ {t:"spiel",h:"Rätsel für kritisches Denken",p:"Kinder lösen Rätsel im Stil von «Black Stories», indem sie Fragen stellen und Schritt für Schritt eine Erklärung aufbauen.",src:L("imedias-Blog, 25.08.2026","https://www.fhnw.ch/plattformen/imedias/2026/08/25/community-aufbau-im-zentrum/"),tags:["Zyklus 2–3"]},
+ {t:"spiel",h:"Escape-Spiel über KI",p:"Rätsel, in denen die Lernenden Fehler in KI-Texten finden müssen, um weiterzukommen.",src:L("IQES: Escape-Spiel zu ChatGPT","https://www.iqesonline.net/bildung-digital/ki-unterricht-lernen/unterrichtsbeispiele/escape-spiel/"),tags:["Zyklus 3"]},
+ {t:"barriere",h:"Ein Knopf, eine Reaktion",p:"Ein grosser Knopf zeigt ein zufälliges Tierbild und liest den Namen vor. Dazu kleine Apps, die beim Einschätzen der eigenen Stimmung oder beim Einhalten von Pausen helfen.",src:L("lernsachen.blog: Vibe-Coding, kann ich das auch?","https://lernsachen.blog/2026/01/23/vibe-coding-was-ist-das-und-kann-ich-das-auch/"),tags:["Zyklus 1","Diklusion"]}
+])}
+<div class="note"><p><strong>Daran sieht man gut:</strong> Die Ideen sind oft alt, Geschichtenwürfel gibt es seit Jahren. Neu ist, dass eine Lehrperson sie genau auf ihre Klasse zuschneiden kann: eigene Bilder, eigene Inhalte, eigene Regeln.</p></div>
+
+<h2>Eure eigene Idee</h2>
+<ul class="qs">
+<li>Was mache ich jede Woche von Hand, das ein Werkzeug übernehmen könnte?</li>
+<li>Wo warten meine Lernenden auf mich, etwa auf eine Rückmeldung oder eine Kontrolle?</li>
+<li>Welches Material gibt es nicht zu kaufen, weil nur meine Klasse es braucht?</li>
+<li>Welches Kind braucht etwas anderes als die anderen?</li>
+<li>Welches Spiel spielt meine Klasse gern, und wie liesse es sich mit Lerninhalten füllen?</li>
+<li>Was steht schon im Schulzimmer und könnte mitspielen: Calliope, Beamer, Tablets, Papier?</li>
+<li>Was wäre, wenn das Arbeitsblatt antworten könnte?</li>
+</ul>
+<div class="note"><p><strong>Grösser denken:</strong> Vibe Coding geht über eine kleine Web-App hinaus. Mit denselben Werkzeugen entstehen auch Code für den Calliope mini, Auswertungen von Umfragetabellen, ein Gruppen-Generator für die Klassenliste oder ein kleines Programm, das Dateien einheitlich umbenennt.</p></div>
+
+<h2>Vorlagen für bestimmte Projektarten</h2>
+${MORE("Spiel mit Spassfaktor", `<p>Seit Herbst 2026 gelingen mit KI auch Spiele, die wirklich Spass machen. Simon Willison stellte fest, dass eine schlichte Anweisung erstaunlich viel bewirkt: «Sorg dafür, dass es Spass macht».</p>
+${P("Spiel mit Spassfaktor", `Baue als einzelne HTML-Datei ohne externe Abhängigkeiten ein Spiel für [Stufe] zum Thema [Thema]. Spielidee: [kurz beschreiben]. Denk gründlich darüber nach, wie das Spiel Spass macht und gleichzeitig [Lernziel] übt. Keine Speicherung von Daten.`)}
+<p class="src">${L("Simon Willison: The October inflection point for vibe game development","https://simonwillison.net/2026/Oct/28/vibe-game-development/")}</p>`)}
+${MORE("Escape Room", `<p>Mehrere Rätsel hintereinander, jedes ergibt einen Code für das nächste Schloss. Auch hybrid möglich: Die App ist das Zahlenschloss, die Hinweise liegen auf Papier im Schulzimmer versteckt.</p>
+${P("Escape Room als Bauplan", `Baue einen digitalen Escape Room als einzelne HTML-Datei ohne externe Abhängigkeiten für [Stufe] zum Thema [Thema]. Geschichte: [kurze Ausgangslage]. Es gibt [Anzahl] Rätsel nacheinander. Jedes Rätsel ergibt einen Code, der das nächste freischaltet. Rätsel: [Rätsel und Lösungen einfügen oder: Schlage passende Rätsel vor]. Mit Countdown von [Minuten] Minuten, Hinweis-Knopf pro Rätsel und Abschlussszene. Keine Speicherung von Daten.`)}`)}
+${MORE("Calliope mini", `<p>Die KI schreibt ein Programm in MakeCode-JavaScript, in MakeCode schaltet ihr auf Blöcke um und erklärt jeden Block. Oder ihr sagt zuerst voraus, was der Code macht, und prüft es im Simulator (PRIMM, mehr dazu in Etappe 4).</p>
+${P("Calliope-Programm", `Schreibe ein Programm für den Calliope mini 3 in MakeCode-JavaScript: [Funktion, z.B. Lärmampel: leise grün, mittel gelb, laut rot]. Verwende nur Befehle, die es im MakeCode-Editor für den Calliope mini gibt, nicht die des micro:bit. Erkläre danach jede Zeile so, dass eine 5. Klasse sie versteht.`)}
+<p class="src">Editor: ${L("makecode.calliope.cc","https://makecode.calliope.cc/")} · Material: ${L("Calliope Schulmaterial","https://calliope.cc/schulen/schulmaterial")}. Tipp: KI-Modelle verwechseln gerne Calliope- und micro:bit-Befehle. Immer im Simulator testen.</p>`)}
+${MORE("Barrierefrei machen", `${P("Barrierearm machen", `Überarbeite diese App so, dass sie barrierearm ist: sehr grosse Schrift, hoher Kontrast, alle Texte können per Knopf vorgelesen werden (Sprachausgabe des Browsers), grosse Bedienelemente, keine zeitlichen Begrenzungen, keine blinkenden Elemente. Erkläre mir, was du geändert hast.`)}`)}
+
+<h2>Zum Stöbern</h2>
+<div class="grid">
+<div class="card"><h3>schooltools.at</h3><p>Eine österreichische Plattform sammelt Mini-Tools, die nach Ideen von Lehrpersonen mit Vibe Coding entstanden sind.</p><p class="src">${L("schooltools.at","https://www.schooltools.at/")}</p></div>
+<div class="card"><h3>Zehn Schulprojekte mit Prompts</h3><p>Eine Sammlung von Projekten samt Prompts und vielen weiteren Ideen.</p><p class="src">${L("bildungssprache.net","https://bildungssprache.net/vibe-coding-schule-studium/")}</p></div>
+<div class="card"><h3>VisibleVibe</h3><p>Lernbeiträge und Beispiele aus der Community der PH FHNW.</p><p class="src">${L("visiblevibe.ch/learn","https://www.visiblevibe.ch/learn")}</p></div>
+</div>
+`}]},
+
 { n:"6", name:"Wegweiser", title:"PICTS-Perspektive", pages:[
 { id:"picts", title:"PICTS-Perspektive", html:`
 <p class="kicker">6 · Wegweiser</p>
@@ -739,16 +794,16 @@ ${P("App bereit machen für Lernende", `Prüfe diese App, bevor ich sie mit Sch�
 <div class="box">
 <h3>Gruppenpuzzle</h3>
 <ol>
-<li>Jede Gruppe übernimmt einen Fall.</li>
+<li>Je zwei Tandems bilden eine Gruppe und übernehmen einen Fall.</li>
 <li>Was ist das eigentliche Problem? Was rätst du als PICTS? Welche Regel bräuchte die Schule?</li>
 <li>Erst danach die möglichen Fragen und Lösungen aufklappen und vergleichen.</li>
 <li>Bringt <strong>eine Regel</strong> für eine schulinterne Handreichung ins Plenum.</li>
 </ol>
 </div>
 
-<div class="card case"><div class="letter">A</div><h3>Das Hauptstädte-Quiz</h3><p>Eine Kollegin in der 5. Klasse hat mit Gemini ein Quiz zu den Hauptstädten Europas gebaut. Die Klasse übt seit zwei Wochen damit. Heute meldet ein Kind: «Bei der Schweiz steht Zürich.» Die Kollegin ist verunsichert und fragt dich, ob sie solchen Apps überhaupt noch trauen kann.</p>
-${MORE("Mögliche Fragen", `<ul><li>Woher kamen die Inhalte: von der Lehrperson oder von der KI?</li><li>Wer hat die Inhalte vor dem Einsatz geprüft?</li><li>Wie lassen sich Fehler künftig schnell korrigieren?</li></ul>`)}
-${MORE("Mögliche Lösungsszenarien", `<ul><li>Inhalte immer selbst mitgeben statt erfinden lassen, oder sie vor dem Einsatz Zeile für Zeile prüfen.</li><li>Im Team ein Vier-Augen-Prinzip vereinbaren, bevor ein Tool in die Klasse geht.</li><li>Den Fehler zum Lernanlass machen: Die Klasse sucht weitere Fehler und lernt dabei, KI-Inhalte kritisch zu prüfen.</li></ul>`)}
+<div class="card case"><div class="letter">A</div><h3>Das Kantonshauptorte-Quiz</h3><p>Eine Kollegin in der 5. Klasse hat mit Gemini ein Quiz zu den Kantonshauptorten gebaut. Die Klasse übt seit zwei Wochen damit. Heute beschwert sich ein Kind: Es habe «St. Gallen» geschrieben und trotzdem ein rotes Kreuz bekommen. Die Kollegin probiert es aus: Nur «St.Gallen» ohne Leerschlag gilt als richtig. Sie fragt dich, ob sie solchen Apps überhaupt trauen kann.</p>
+${MORE("Mögliche Fragen", `<ul><li>Wie wurde die App vor dem Einsatz getestet, und von wem?</li><li>Welche anderen Eingaben könnten ebenfalls falsch bewertet werden: Gross- und Kleinschreibung, Umlaute, Leerschläge?</li><li>Wie können Kinder und Lehrperson einen Fehler künftig schnell melden und korrigieren?</li></ul>`)}
+${MORE("Mögliche Lösungsszenarien", `<ul><li>Vor dem Einsatz so testen, wie Kinder tippen: mit Tippfehlern, Kleinschreibung und Leerschlägen.</li><li>Den Fehler mit dem Fehlerbericht aus 3.2 beschreiben und nur diese Stelle korrigieren lassen, etwa: «Akzeptiere Antworten unabhängig von Gross- und Kleinschreibung und Leerschlägen.»</li><li>Im Team ein Vier-Augen-Prinzip vereinbaren, bevor ein Tool in die Klasse geht.</li><li>Den Fehler zum Lernanlass machen: Die Klasse sucht weitere Schwachstellen.</li></ul>`)}
 </div>
 
 <div class="card case" style="margin-top:16px"><div class="letter">B</div><h3>Der Lesepass</h3><p>Ein Lehrer in der 2. Klasse hat einen digitalen Lesepass gebaut. Die Kinder tippen am Tablet ihren Vornamen und die gelesenen Minuten ein. Zwei Kolleginnen wollen ihn auch nutzen. Er fragt dich, ob er ihn einfach weitergeben kann.</p>
@@ -771,7 +826,7 @@ ${MORE("Mögliche Fragen", `<ul><li>Wem gehört ein Tool, das mit einem privaten
 ${MORE("Mögliche Lösungsszenarien", `<ul><li>Tools, die mehrere Klassen nutzen, immer als HTML-Datei in einer Ablage der Schule oder auf GitHub sichern.</li><li>Pro Tool eine verantwortliche Person bestimmen und sie im Tool selbst nennen.</li><li>Wenn möglich mit Schulkonten statt privaten Konten bauen.</li></ul>`)}
 </div>
 
-<div class="note" style="margin-top:28px"><p><strong>Merke:</strong> Die Rolle der PICTS verschiebt sich <mark>vom Tool-Support zur Qualitätsberatung</mark>. Gefragt sind weniger Programmierkenntnisse als klare Kriterien und der Mut, nachzufragen.</p></div>
+<div class="note" style="margin-top:28px"><p><strong>Merke:</strong> Dafür braucht ihr als PICTS keine Programmierkenntnisse, sondern <mark>klare Fragen</mark>: Wer hat geprüft? Wo liegen Daten? Wer ist verantwortlich? Wo ist das Tool gesichert?</p></div>
 `}]},
 
 { n:"7", name:"Heimweg", title:"Transfer", pages:[
@@ -791,12 +846,12 @@ ${MORE("Mögliche Lösungsszenarien", `<ul><li>Tools, die mehrere Klassen nutzen
 
 <h2>Weiterlernen</h2>
 <div class="grid">
-<div class="card"><h3>VisibleVibe (PH FHNW)</h3><p>${L("Community für Lehrpersonen, PICTS und Schulleitungen","https://www.fhnw.ch/plattformen/imedias/visiblevibe/")}, die Vibe Coding mit pädagogischen Fragen verbinden. Dazu ein schulinternes Weiterbildungsangebot.</p></div>
+<div class="card"><h3>VisibleVibe (PH FHNW)</h3><p>${L("Community für Lehrpersonen, PICTS und Schulleitungen","https://www.fhnw.ch/plattformen/imedias/visiblevibe/")}, die Vibe Coding mit pädagogischen Fragen verbinden. Dazu ${L("Lernbeiträge","https://www.visiblevibe.ch/learn")} zu Methode, Testen und Datenschutz.</p></div>
 <div class="card"><h3>KI-Pass</h3><p>${L("Selbstlernkurs und Poster «Wer denkt hier?»","https://ki-pass.ch/")} von Michael Lutz, für Zyklus 2 und 3.</p></div>
 <div class="card"><h3>Hauke Pölert</h3><p>${L("Mit KI und Vibe Coding interaktive Lernmaterialien erstellen","https://unterrichten.digital/2026/07/13/ki-vibe-coding-schule-unterricht/")}. Praxisnah, mit Schritt-für-Schritt-Anleitung.</p></div>
 <div class="card"><h3>lernsachen.blog</h3><p>${L("Vibe-Coding: Was ist das und kann ich das auch?","https://lernsachen.blog/2026/01/23/vibe-coding-was-ist-das-und-kann-ich-das-auch/")} Mit Fokus auf Diklusion.</p></div>
-<div class="card"><h3>Medienimpulse</h3><p>${L("Wallner/Pecher (2026): Vibe Coding, Schooltools-Beispiele","https://journals.univie.ac.at/index.php/mp/article/view/10495/10685")}. Wissenschaftlicher Beitrag.</p></div>
-<div class="card"><h3>Simon Willison</h3><p>${L("Not all AI-assisted programming is vibe coding","https://simonwillison.net/2025/Mar/19/vibe-coding/")}. Die Begriffsschärfung, auf Englisch.</p></div>
+<div class="card"><h3>Selbstlernkurs Vibe Coding</h3><p>${L("Medienzentrum Gießen-Vogelsberg","https://mzgivb.github.io/vibe-coding-kurs/")}: acht Module, mit Unterrichtsszenarien und Bewertungsraster.</p></div>
+<div class="card"><h3>unterricht-digital.ch</h3><p>${L("Vibe Coding im Zyklus 3","https://unterricht-digital.ch/wp-content/uploads/2026/06/31-vibe-coding.html")} mit Bezug zum Lehrplan 21.</p></div>
 </div>
 
 ${MORE("Quellen", `
@@ -810,6 +865,8 @@ ${MORE("Quellen", `
 <li>Wallner/Pecher (2026): Medienimpulse 64(2).</li>
 <li>Lutz, M. (2026): Wer denkt hier? ki-pass.ch.</li>
 <li>Willison, S. (2026): The October inflection point for vibe game development.</li>
+<li>imedias, PH FHNW (2026): VisibleVibe, visiblevibe.ch.</li>
+<li>Microsoft Research (2025): Real or Not Quiz. Pavão, R. (2025): We are not able to identify AI-generated images.</li>
 <li>Angaben zu Werkzeugen und Kosten: Stand November 2026. Angebote ändern sich schnell.</li>
 </ul>
 `)}
@@ -827,7 +884,7 @@ const IMPRESSUM = { id:"impressum", title:"Impressum", html:`
 <h2>Lizenz</h2>
 <p>Dieses Lernmodul steht unter der Lizenz ${L("Creative Commons BY-NC-SA 4.0","https://creativecommons.org/licenses/by-nc-sa/4.0/deed.de")}: Ihr dürft es teilen und anpassen, mit Namensnennung, nicht kommerziell und unter gleichen Bedingungen.</p>
 <h2>Entstehung</h2>
-<p>Erstellt im Oktober 2026, aktualisiert im November 2026, mit Unterstützung von KI.</p>
+<p>Erstellt im Oktober 2026, überarbeitet im Dezember 2026, mit Unterstützung von KI.</p>
 <h2>Hinweise</h2>
 <ul>
 <li>Angaben zu Werkzeugen, Kosten und Altersgrenzen entsprechen dem Stand bei der Erstellung und können sich ändern.</li>
@@ -880,6 +937,14 @@ function render(){
     catch(e){ const r=document.createRange(); r.selectNodeContents(pre); const s=getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent="Markiert"; }
     setTimeout(()=>b.textContent="Kopieren",1600);
   }));
+  $("#main").querySelectorAll(".dbfilters").forEach(bar=>{
+    const grid=bar.nextElementSibling;
+    bar.querySelectorAll(".dbf").forEach(b=>b.addEventListener("click",()=>{
+      bar.querySelectorAll(".dbf").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+      const f=b.dataset.f;
+      grid.querySelectorAll("[data-t]").forEach(c=>{ c.hidden = f!=="alle" && !c.dataset.t.split(" ").includes(f); });
+    }));
+  });
   if($("#timer")) initTimer();
   renderNav();
 }
@@ -896,7 +961,7 @@ function goId(id){
 }
 
 /* Timer */
-let tTotal=90, tLeft=90, tInt=null, actx=null;
+let tTotal=120, tLeft=120, tInt=null, actx=null;
 function fmt(s){ const m=Math.floor(s/60), r=s%60; return m+":"+String(r).padStart(2,"0"); }
 function tDraw(){
   const el=$("#timer"); if(!el) return;

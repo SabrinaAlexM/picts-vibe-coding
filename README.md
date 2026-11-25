@@ -85,7 +85,7 @@ Farben und Schriften stehen ganz oben im `<style>`-Bereich unter `:root`.
 
 ## Stand
 
-Angaben zu Werkzeugen, Kosten und Altersgrenzen entsprechen dem Stand Oktober 2026 und können sich ändern.
+Angaben zu Werkzeugen, Kosten und Altersgrenzen entsprechen dem Stand November 2026 und können sich ändern.
 
 ## Autorin
 
