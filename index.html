@@ -266,16 +266,14 @@ const STAGES = [
 
 <h2>Ziele</h2>
 <ul>
-<li>Ihr kennt Herkunft und Bedeutung von Vibe Coding und könnt seine Chancen und Grenzen einschätzen.</li>
-<li>Ihr baut im Tandem eine eigene kleine App mit KI, sichert sie und teilt sie.</li>
-<li>Ihr hinterfragt KI-Code mit Methoden aus dem Informatikunterricht.</li>
-<li>Ihr erprobt kreative KI-Werkzeuge oder entwickelt eine zweite App-Idee weiter.</li>
-<li>Ihr beurteilt als PICTS, wann ein selbst gebautes Tool im Unterricht sinnvoll ist und wann nicht.</li>
+<li>Ihr ordnet Vibe Coding ein: Herkunft, Chancen und Grenzen.</li>
+<li>Ihr baut im Tandem eine eigene App, erprobt kreative KI-Werkzeuge und sichert euer Ergebnis.</li>
+<li>Ihr beurteilt als PICTS, wann ein selbst gebautes Tool im Unterricht sinnvoll ist.</li>
 </ul>
 
 <h2>Die Expedition</h2>
 <ol class="agenda">
-<li><b><span>1</span>Warm-up</b><em>Practice-Runde</em></li>
+<li><b><span>1</span>Warm-up</b><em>Check-in</em></li>
 <li><b><span>2</span>Kompass</b><em>Was ist Vibe Coding?</em></li>
 <li><b><span>3</span>Erster Gipfel</b><em>Von der Idee zum Produkt: Projektstart, Bauen, Zeigt her!</em></li>
 <li><b><span>4</span>Rastplatz</b><em>Code verstehen · Teilen und Versionieren</em></li>
@@ -291,27 +289,26 @@ const STAGES = [
 <div class="box">
 <h3>Bitte vor dem Kurs erledigen</h3>
 <ol>
-<li><strong>Beispiel mitbringen:</strong> Jede Person hat schon etwas mit KI gemacht, zum Beispiel ein Tool, ein Spiel, ein Bild, einen Song oder einen Text. Es muss nicht perfekt sein. Bringt es mit.</li>
+<li><strong>Steckbrief ausfüllen:</strong> Entscheidet euch für etwas, das ihr mit KI kreativ umgesetzt habt, ob für die Schule, mit der Klasse oder privat. Es darf eine eigene Idee sein oder etwas, von dem ihr euch habt inspirieren lassen. Haltet es auf dem Steckbrief fest und bringt ihn auf A4 ausgedruckt mit.</li>
 <li><strong>Laptop und Konto:</strong> Ein Google-Konto für gemini.google.com oder ein Konto bei claude.ai. Bitte vor dem Kurs einmal anmelden und ausprobieren.</li>
 <li><strong>Guthaben schonen:</strong> Die Gratisversionen erlauben nur eine begrenzte Anzahl Anfragen. Baut in den Tagen vor dem Kurs keine grösseren Projekte, sonst fehlt das Guthaben am Nachmittag. Den Stand seht ihr unter ${L("gemini.google.com/usage","https://gemini.google.com/usage")} oder bei Claude unter Einstellungen &gt; Nutzung.</li>
 </ol>
 </div>
 `}]},
 
-{ n:"1", name:"Warm-up", title:"Practice-Runde", pages:[
-{ id:"warmup", title:"Practice-Runde", html:`
+{ n:"1", name:"Warm-up", title:"Check-in", pages:[
+{ id:"warmup", title:"Check-in", html:`
 <p class="kicker">1 · Warm-up</p>
-<h1>Practice-Runde</h1>
+<h1>Check-in</h1>
 <p class="core">Ihr bringt schon Erfahrungen mit. Wir beginnen mit dem, was in diesem Raum bereits da ist.</p>
 
 <div class="box">
 <h3>Was habt ihr schon ausprobiert?</h3>
-<p>Zeigt euch zu zweit eure mitgebrachten Beispiele, je 2 Minuten. Danach zeigen zwei, drei Personen ihr Beispiel im Plenum. Wer zusammen war, baut nachher im Tandem.</p>
-<ul>
-<li>Was habe ich gemacht, und mit welchem Werkzeug?</li>
-<li>Was hat mich überrascht, positiv oder negativ?</li>
-<li>Wofür habe ich es genutzt, oder wofür könnte ich es nutzen?</li>
-</ul>
+<ol>
+<li>Bildet Dreiergruppen.</li>
+<li>Stellt euch gegenseitig euren Steckbrief vor, je 1,5 Minuten pro Person. Den Timer unten stellt ihr selbst.</li>
+<li>Danach sammeln wir die Steckbriefe im Plenum. So sehen alle, wer womit schon Erfahrungen gemacht hat.</li>
+</ol>
 </div>
 
 <div class="timer" id="timer">
@@ -321,7 +318,7 @@ const STAGES = [
     <button class="go" id="tStart">Start</button>
     <button id="tReset">Zurücksetzen</button>
   </div>
-  <div class="set"><label for="tMin">Minuten</label><input id="tMin" type="number" min="0" max="30" value="2"><label for="tSec">Sekunden</label><input id="tSec" type="number" min="0" max="59" step="5" value="0"></div>
+  <div class="set"><label for="tMin">Minuten</label><input id="tMin" type="number" min="0" max="30" value="1"><label for="tSec">Sekunden</label><input id="tSec" type="number" min="0" max="59" step="5" value="30"></div>
 </div>
 `}]},
 
@@ -593,7 +590,7 @@ ${INFO("Kennt ihr aus dem Informatikunterricht: PRIMM", `<p>PRIMM ist ein Unterr
 
 ${NOW}
 <div class="box">
-<h3>Auftrag im Tandem, direkt nach «Zeigt her!»</h3>
+<h3>Auftrag im Tandem</h3>
 <ol>
 <li><strong>Predict:</strong> Öffnet die Code-Ansicht eurer App. Sucht eine Stelle aus und vermutet, was sie macht.</li>
 <li><strong>Run und Investigate:</strong> Prüft eure Vermutung mit dem ersten Prompt.</li>
@@ -961,7 +958,7 @@ function goId(id){
 }
 
 /* Timer */
-let tTotal=120, tLeft=120, tInt=null, actx=null;
+let tTotal=90, tLeft=90, tInt=null, actx=null;
 function fmt(s){ const m=Math.floor(s/60), r=s%60; return m+":"+String(r).padStart(2,"0"); }
 function tDraw(){
   const el=$("#timer"); if(!el) return;

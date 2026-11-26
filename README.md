@@ -13,13 +13,15 @@ Das Modul ist als Expedition in sieben Etappen aufgebaut:
 | Etappe | Thema | Unterkapitel |
 |---|---|---|
 | 0 · Basislager | Start: Ziele, Ablauf, Vorbereitung | |
-| 1 · Warm-up | Practice-Runde mit Timer | |
+| 1 · Warm-up | Check-in mit Timer | |
 | 2 · Kompass | Was ist Vibe Coding? | |
 | 3 · Erster Gipfel | Von der Idee zum Produkt | 3.1 Projektstart · 3.2 Bauen · 3.3 Zeigt her! |
-| 4 · Abzweigung | Weiterdenken | 4.1 Kreativ-Labor · 4.2 Ideenbörse Vibe Coding |
-| 5 · Rastplatz | Code verstehen (PRIMM) | 5.1 Teilen und Versionieren |
+| 4 · Rastplatz | Code verstehen (PRIMM) | 4.1 Teilen und Versionieren |
+| 5 · Abzweigung | Weiterdenken | 5.1 Kreativ-Labor · 5.2 Ideenbörse Vibe Coding |
 | 6 · Wegweiser | PICTS-Perspektive mit fünf Fallszenarien | |
 | 7 · Heimweg | Transfer und Weiterlernen | |
+
+Markierungen «Heute im Kurs» und «Zum Nachlesen» zeigen, was im Kurs gemeinsam bearbeitet wird und was zum Vertiefen gedacht ist.
 
 Wiederkehrende Kästen «Kennt ihr aus dem Informatikunterricht» zeigen Bezüge zu Pair Programming, Problemzerlegung, Debugging, PRIMM und Versionieren.
 
@@ -34,17 +36,17 @@ Wiederkehrende Kästen «Kennt ihr aus dem Informatikunterricht» zeigen Bezüge
 | Anker | Seite |
 |---|---|
 | `#basislager` | Start |
-| `#warmup` | Practice-Runde |
+| `#warmup` | Check-in |
 | `#begriff` | Was ist Vibe Coding? |
 | `#idee-produkt` | Von der Idee zum Produkt |
 | `#projektstart` | 3.1 Projektstart |
 | `#bauen` | 3.2 Bauen |
 | `#zeigt-her` | 3.3 Zeigt her! |
-| `#weiterdenken` | Weiterdenken |
-| `#kreativ` | 4.1 Kreativ-Labor |
-| `#ideen` | 4.2 Ideenbörse |
 | `#code` | Code verstehen |
-| `#teilen` | 5.1 Teilen und Versionieren |
+| `#teilen` | 4.1 Teilen und Versionieren |
+| `#weiterdenken` | Weiterdenken |
+| `#kreativ` | 5.1 Kreativ-Labor |
+| `#ideen` | 5.2 Ideenbörse |
 | `#picts` | PICTS-Perspektive |
 | `#transfer` | Transfer |
 | `#impressum` | Impressum |
